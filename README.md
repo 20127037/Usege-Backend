@@ -13,7 +13,7 @@ aws configure --profile mobile_group_1_dev sso
 Then insert
 ```
 session name: mobile_group_1_dev
-start URL: https://d-96677c108a.awsapps.com/star
+start URL: https://d-96677c108a.awsapps.com/stars
 region: ap-southeast-1
 scopes: sso:account:access
 ```
