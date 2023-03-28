@@ -35,8 +35,8 @@ profile name: mobile_group_1_dev
 ### First time initializing
 1. Go to the [infrastructure/local](src/infrastructure/local) folder
 2. Run the command to init terraform: `terraform init`
-3. Run the command to plan change: `terraform plan`
-4. Run [LocalStack](https://localstack.cloud/) on Docker (or using [docker compose file](docker-compose-local.yml) instead): `docker compose up -d`
+3. Run [LocalStack](https://localstack.cloud/) on Docker (or using [docker compose file](src/docker-compose.yml) instead): `docker compose up -d`
+4. Run the command to plan change: `terraform plan`
 5. Deploy terraform: `terraform apply --auto-approve`
 
 ### Run services after first time initializing

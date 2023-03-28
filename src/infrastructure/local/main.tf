@@ -11,7 +11,7 @@ resource "aws_dynamodb_table" "userInfoTable" {
   name                        = "userInfo"
   deletion_protection_enabled = false
   hash_key                    = "userId"
-  id                          = "userInfo"
+  #id                          = "userInfo"
   read_capacity               = 20
   write_capacity              = 20
   stream_enabled              = false
@@ -43,7 +43,7 @@ resource "aws_dynamodb_table" "userFilesTable" {
   name                        = "userFiles"
   deletion_protection_enabled = false
   hash_key                    = "userId"
-  id                          = "userFiles"
+  #id                          = "userFiles"
   range_key                   = "fileId"
   read_capacity               = 20
   write_capacity              = 20
@@ -68,9 +68,9 @@ resource "aws_s3_bucket" "fileStorage" {
   #bucket_domain_name          = "usege.s3.amazonaws.com"
   #bucket_regional_domain_name = "usege.s3.ap-southeast-1.amazonaws.com"
   #hosted_zone_id              = "Z3O0J2DXBE1FTB"
-  id                          = "usege"
+  #id                          = "usege"
   object_lock_enabled         = false
-  region                      = "ap-southeast-1"
+  #region                      = "ap-southeast-1"
 }
 
 #resource "aws_cognito_user_pool" "user_pool" {

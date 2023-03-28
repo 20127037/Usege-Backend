@@ -13,10 +13,10 @@ services:
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
         - localstack_data:/tmp/localstack/data
+      networks:
+        localstack:
 
 volumes:
   localstack_data:
 networks:
-  default:
-    external:
-        name: localstack
+  localstack:
