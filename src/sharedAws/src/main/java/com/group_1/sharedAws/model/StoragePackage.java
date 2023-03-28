@@ -1,7 +1,9 @@
 package com.group_1.sharedAws.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
@@ -18,6 +20,8 @@ import java.util.List;
 @Data
 @Builder
 @DynamoDbBean
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldNameConstants
 public class StoragePackage {
     private String storagePackId;
