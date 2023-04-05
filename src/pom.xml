@@ -7,9 +7,12 @@
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
     <modules>
-        <module>authenticationService</module>
-        <module>masterService</module>
+        <module>account</module>
+        <module>master</module>
         <module>sharedAws</module>
+        <module>auth</module>
+        <module>eureka</module>
+        <module>apigw</module>
     </modules>
     <name>usege_backend</name>
 
@@ -20,6 +23,9 @@
         <spring.boot.maven.dependencies.version>2.5.7</spring.boot.maven.dependencies.version>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
         <aws.java.sdk.version>2.20.28</aws.java.sdk.version>
+        <spring.cloud-version>2020.0.6</spring.cloud-version>
+        <com.google.cloud.tools.jib-maven-plugin>3.3.1</com.google.cloud.tools.jib-maven-plugin>
+        <image>usege/${project.artifactId}:${project.version}</image>
     </properties>
 
     <dependencyManagement>
@@ -36,6 +42,13 @@
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>bom</artifactId>
                 <version>${aws.java.sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring.cloud-version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -62,6 +75,40 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring.boot.maven.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <version>${com.google.cloud.tools.jib-maven-plugin}</version>
+                    <configuration>
+                        <from>
+                            <image>eclipse-temurin:17-alpine</image>
+<!--                            <platforms>-->
+<!--                                <platform>-->
+<!--                                    <architecture>arm64</architecture>-->
+<!--                                    <os>linux</os>-->
+<!--                                </platform>-->
+<!--                                <platform>-->
+<!--                                    <architecture>amd64</architecture>-->
+<!--                                    <os>linux</os>-->
+<!--                                </platform>-->
+<!--                            </platforms>-->
+                        </from>
+                        <to>
+                            <tags>
+                                <tag>latest</tag>
+                            </tags>
+                        </to>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <!-- after we package, build the application-->
+                            <phase>package</phase>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>

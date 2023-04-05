@@ -14,11 +14,10 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
 @AllArgsConstructor
 public  class DynamoDbRepository<TValue> {
     private final DynamoDbTable<TValue> table;
-    public TValue saveRecord(TValue value) {
-        PutItemEnhancedResponse<TValue> response = table.putItemWithResponse(b -> {
+    public void saveRecord(TValue value) {
+        table.putItem(b -> {
             b.item(value);
         });
-        return response.attributes();
     }
 
     public TValue getRecordById(String id) {
@@ -26,10 +25,10 @@ public  class DynamoDbRepository<TValue> {
         return table.getItem(builder -> builder.key(key));
     }
 
-//    public TValue deleteRecordById(String id) {
-//        Key key = Key.builder().partitionValue(id).build();
-//        return table.deleteItem(b -> b.key(key));
-//    }
+    public TValue deleteRecordById(String id) {
+        Key key = Key.builder().partitionValue(id).build();
+        return table.deleteItem(b -> b.key(key));
+    }
 //
 //    public TValue updateCustomer(TValue update) {
 ////        HashMap<String, AttributeValueUpdate> updatedValues = new HashMap<>();

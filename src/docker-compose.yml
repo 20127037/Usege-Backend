@@ -1,5 +1,5 @@
 version: "3.8"
-
+#terraform apply --auto-approve
 services:
     localstack:
       image: localstack/localstack:latest
@@ -8,15 +8,76 @@ services:
         - SERVICES=dynamodb,s3
         - DEFAULT_REGION=ap-southeast-1
         - DEBUG=1
+        - PERSISTANCE=1
       ports:
         - "4566:4566"
       volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
+        #- /var/run/docker.sock:/var/run/docker.sock
         - localstack_data:/tmp/localstack/data
       networks:
         localstack:
 
+    zipkin:
+      image: openzipkin/zipkin
+      container_name: zipkin
+      ports:
+        - "9411:9411"
+      networks:
+        - spring
+
+    eureka-server:
+      image: usege/eureka:latest
+      container_name: eureka-server
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      ports:
+        - "8761:8761"
+      networks:
+        - spring
+
+    apigw:
+      image: usege/apigw:latest
+      container_name: apigw
+      ports:
+        - "8090:8090"
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      depends_on:
+        - eureka-server
+      networks:
+        - spring
+
+    account:
+      image: usege/account:latest
+      container_name: account
+      ports:
+        - "8081:8081"
+      networks:
+        - spring
+        - localstack
+      depends_on:
+        - eureka-server
+        - localstack
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+
+    auth:
+      image: usege/auth:latest
+      container_name: auth
+      ports:
+        - "8082:8082"
+      networks:
+        - spring
+        - localstack
+      depends_on:
+        - eureka-server
+        - localstack
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+
 volumes:
   localstack_data:
 networks:
+  spring:
+    driver: bridge
   localstack:
