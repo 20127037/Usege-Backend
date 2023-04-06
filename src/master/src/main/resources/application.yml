@@ -1,0 +1,26 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1/master
+spring:
+  application:
+    name: master
+  security:
+    oauth2:
+      client:
+        registration:
+          cognito:
+            clientId: 5bblk1i1g2h1t40qbl9s0std9d
+            scope: openid
+            clientName: UsegeFrontend
+        provider:
+          cognito:
+            issuerUri: https://cognito-idp.ap-southeast-1.amazonaws.com/Fm8xzxQHY
+            user-name-attribute: cognito:username
+
+amazon:
+  aws:
+    secretKey:
+    accessKey:
+  dynamoDb:
+    endPoint:
