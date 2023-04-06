@@ -32,48 +32,53 @@ services:
         - SPRING_PROFILES_ACTIVE=docker
       ports:
         - "8761:8761"
+      depends_on:
+        - zipkin
       networks:
         - spring
 
-    apigw:
-      image: usege/apigw:latest
-      container_name: apigw
-      ports:
-        - "8090:8090"
-      environment:
-        - SPRING_PROFILES_ACTIVE=docker
-      depends_on:
-        - eureka-server
-      networks:
-        - spring
-
-    account:
-      image: usege/account:latest
-      container_name: account
-      ports:
-        - "8081:8081"
-      networks:
-        - spring
-        - localstack
-      depends_on:
-        - eureka-server
-        - localstack
-      environment:
-        - SPRING_PROFILES_ACTIVE=docker
-
-    auth:
-      image: usege/auth:latest
-      container_name: auth
-      ports:
-        - "8082:8082"
-      networks:
-        - spring
-        - localstack
-      depends_on:
-        - eureka-server
-        - localstack
-      environment:
-        - SPRING_PROFILES_ACTIVE=docker
+#    apigw:
+#      image: usege/apigw:latest
+#      container_name: apigw
+#      ports:
+#        - "8090:8090"
+#      environment:
+#        - SPRING_PROFILES_ACTIVE=docker
+#      depends_on:
+#        - eureka-server
+#        - zipkin
+#      networks:
+#        - spring
+#
+#    account:
+#      image: usege/account:latest
+#      container_name: account
+#      ports:
+#        - "8081:8081"
+#      networks:
+#        - spring
+#        - localstack
+#      depends_on:
+#        - eureka-server
+#        - localstack
+#      environment:
+#        - SPRING_PROFILES_ACTIVE=docker
+#      volumes:
+#        - ${HOME}/.aws
+#
+#    auth:
+#      image: usege/auth:latest
+#      container_name: auth
+#      ports:
+#        - "8082:8082"
+#      networks:
+#        - spring
+#        - localstack
+#      depends_on:
+#        - eureka-server
+#        - localstack
+#      environment:
+#        - SPRING_PROFILES_ACTIVE=docker
 
 volumes:
   localstack_data:

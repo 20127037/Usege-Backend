@@ -81,7 +81,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void forgetPassword(String username) {
-        ForgotPasswordResponse response = cognitoIdentityProviderClient.forgotPassword(b -> b
+        AdminGetUserResponse user = cognitoIdentityProviderClient.adminGetUser(b
+                -> b.userPoolId(cognitoPoolId).username(username));
+        if (user.userStatus() == UserStatusType.UNCONFIRMED)
+            throw UserNotConfirmedException.builder().build();
+        cognitoIdentityProviderClient.forgotPassword(b -> b
                 .clientId((cognitoClientId))
                 .username(username));
     }

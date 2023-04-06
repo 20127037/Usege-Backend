@@ -57,14 +57,14 @@ public class UserAccountController {
     }
 
 
-    @PostMapping("forgetPassword/{id}")
+    @PostMapping("forget/{id}")
     public ResponseEntity<Object> forgetPassword(HttpServletRequest request, @PathVariable String id)
     {
         accountService.forgetPassword(id);
         return ResponseEntity.created(URI.create(request.getRequestURI())).build();
     }
 
-    @PutMapping("forgetPassword/{id}")
+    @PutMapping("forget/{id}")
     public ResponseEntity<Object> confirmForgetPassword(@PathVariable String id, @RequestBody ConfirmForgetPasswordDto confirm)
     {
         if (accountService.confirmForgetPassword(id, confirm.confirmCode(), confirm.newPassword()))
