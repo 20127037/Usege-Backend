@@ -48,3 +48,9 @@ profile name: mobile_group_1_dev
 docker image prune
 docker volume prune
 ```
+
+###Test your own service
+In case you wanna test your own service. Keep in mind that you no longer use API gateway port 8090, but your exact service port
+1. Stop the service container **overlapped with** your service
+2. Run the service on your machine
+3. Connect to the exact port of the service **(not 8090)** for testing
