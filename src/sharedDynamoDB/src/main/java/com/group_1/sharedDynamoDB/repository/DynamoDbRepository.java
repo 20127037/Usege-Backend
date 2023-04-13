@@ -1,4 +1,4 @@
-package com.group_1.sharedAws.repository;
+package com.group_1.sharedDynamoDB.repository;
 
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;

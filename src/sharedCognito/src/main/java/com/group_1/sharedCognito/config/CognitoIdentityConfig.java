@@ -1,4 +1,4 @@
-package com.group_1.account.config;
+package com.group_1.sharedCognito.config;
 
 import com.group_1.sharedAws.config.AwsClientConfig;
 import lombok.AllArgsConstructor;

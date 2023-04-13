@@ -1,8 +1,8 @@
 package com.group_1.account.service;
 
 import com.group_1.account.dto.AccountRequestDto;
-import com.group_1.sharedAws.model.UserInfo;
-import com.group_1.sharedAws.repository.UserRepository;
+import com.group_1.sharedDynamoDB.model.UserInfo;
+import com.group_1.sharedDynamoDB.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;

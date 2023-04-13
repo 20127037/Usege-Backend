@@ -1,6 +1,7 @@
 package com.group_1.master.service;
 
-import com.group_1.sharedAws.model.StoragePackage;
+
+import com.group_1.sharedDynamoDB.model.StoragePackage;
 
 /**
  * service

@@ -1,4 +1,4 @@
-package com.group_1.sharedAws.model;
+package com.group_1.sharedDynamoDB.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -42,25 +42,8 @@
         </dependency>
         <dependency>
             <groupId>com.group_1</groupId>
-            <artifactId>sharedAws</artifactId>
+            <artifactId>sharedCognito</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>cognitoidentityprovider</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>cognitoidentity</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>sso</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>ssooidc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>

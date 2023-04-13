@@ -1,7 +1,7 @@
 package com.group_1.master.controller;
 
 import com.group_1.master.service.UserService;
-import com.group_1.sharedAws.model.UserInfo;
+import com.group_1.sharedDynamoDB.model.UserInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

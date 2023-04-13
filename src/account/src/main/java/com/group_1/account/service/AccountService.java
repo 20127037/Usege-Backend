@@ -1,7 +1,7 @@
 package com.group_1.account.service;
 
 import com.group_1.account.dto.AccountRequestDto;
-import com.group_1.sharedAws.model.UserInfo;
+import com.group_1.sharedDynamoDB.model.UserInfo;
 
 /**
  * service

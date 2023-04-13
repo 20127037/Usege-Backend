@@ -1,8 +1,8 @@
 package com.group_1.auth.service;
 
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;

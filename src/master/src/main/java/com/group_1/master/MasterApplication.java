@@ -1,4 +1,4 @@
-package com.group_1.master.main;
+package com.group_1.master;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

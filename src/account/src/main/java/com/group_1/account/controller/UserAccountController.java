@@ -3,7 +3,7 @@ package com.group_1.account.controller;
 import com.group_1.account.dto.AccountRequestDto;
 import com.group_1.account.dto.ConfirmForgetPasswordDto;
 import com.group_1.account.service.AccountService;
-import com.group_1.sharedAws.model.UserInfo;
+import com.group_1.sharedDynamoDB.model.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

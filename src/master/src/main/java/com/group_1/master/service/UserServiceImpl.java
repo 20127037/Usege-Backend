@@ -1,7 +1,7 @@
 package com.group_1.master.service;
 
-import com.group_1.sharedAws.model.UserInfo;
-import com.group_1.sharedAws.repository.UserRepository;
+import com.group_1.sharedDynamoDB.model.UserInfo;
+import com.group_1.sharedDynamoDB.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -8,31 +8,36 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>master</artifactId>
 
+    <artifactId>sharedCognito</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.group_1</groupId>
-            <artifactId>sharedDynamoDB</artifactId>
+            <artifactId>sharedAws</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-client</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>cognitoidentityprovider</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-jose</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>cognitoidentity</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-config</artifactId>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sso</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>ssooidc</artifactId>
         </dependency>
     </dependencies>
+
 </project>

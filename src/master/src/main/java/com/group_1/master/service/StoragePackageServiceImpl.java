@@ -1,7 +1,7 @@
 package com.group_1.master.service;
 
-import com.group_1.sharedAws.model.StoragePackage;
-import com.group_1.sharedAws.repository.StoragePackageRepository;
+import com.group_1.sharedDynamoDB.model.StoragePackage;
+import com.group_1.sharedDynamoDB.repository.StoragePackageRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

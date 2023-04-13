@@ -7,22 +7,28 @@
         <groupId>com.group_1</groupId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>sharedAws</artifactId>
     <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>sharedDynamoDB</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
-            <artifactId>regions</artifactId>
+            <artifactId>dynamodb</artifactId>
         </dependency>
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
-            <artifactId>auth</artifactId>
+            <artifactId>dynamodb-enhanced</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.group_1</groupId>
+            <artifactId>sharedAws</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
