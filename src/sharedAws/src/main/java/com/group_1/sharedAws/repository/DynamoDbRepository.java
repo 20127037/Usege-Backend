@@ -1,6 +1,8 @@
 package com.group_1.sharedAws.repository;
 
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
@@ -13,21 +15,20 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
  */
 @AllArgsConstructor
 public  class DynamoDbRepository<TValue> {
-    private final DynamoDbTable<TValue> table;
+    private final DynamoDbAsyncTable<TValue> table;
     public void saveRecord(TValue value) {
-        table.putItem(b -> {
-            b.item(value);
-        });
+        table.putItem(b -> b.item(value));
     }
 
+    @SneakyThrows
     public TValue getRecordById(String id) {
         Key key = Key.builder().partitionValue(id).build();
-        return table.getItem(builder -> builder.key(key));
+        return table.getItem(builder -> builder.key(key)).getNow(null);
     }
 
     public TValue deleteRecordById(String id) {
         Key key = Key.builder().partitionValue(id).build();
-        return table.deleteItem(b -> b.key(key));
+        return table.deleteItem(b -> b.key(key)).getNow(null);
     }
 //
 //    public TValue updateCustomer(TValue update) {

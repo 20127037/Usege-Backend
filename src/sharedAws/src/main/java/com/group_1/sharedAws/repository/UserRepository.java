@@ -2,6 +2,7 @@ package com.group_1.sharedAws.repository;
 
 import com.group_1.sharedAws.model.UserInfo;
 import org.springframework.stereotype.Repository;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
@@ -14,7 +15,7 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 @Repository
 public class UserRepository extends DynamoDbRepository<UserInfo> {
 
-    public UserRepository(DynamoDbEnhancedClient enhancedClient) {
+    public UserRepository(DynamoDbEnhancedAsyncClient enhancedClient) {
         super(enhancedClient.table("userInfo", TableSchema.fromBean(UserInfo.class)));
     }
 }
