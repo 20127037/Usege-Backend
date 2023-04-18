@@ -15,7 +15,7 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 @Repository
 public class UserRepository extends DynamoDbRepository<UserInfo> {
 
-    public UserRepository(DynamoDbEnhancedClient enhancedClient) {
+    public UserRepository(DynamoDbEnhancedAsyncClient enhancedClient) {
         super(enhancedClient.table("userInfo", TableSchema.fromBean(UserInfo.class)));
     }
 }
