@@ -63,6 +63,28 @@ resource "aws_dynamodb_table" "userFilesTable" {
   }
 }
 
+
+resource "aws_dynamodb_table" "storagePlanTable" {
+  name                        = "storagePlans"
+  deletion_protection_enabled = false
+  hash_key                    = "name"
+  read_capacity               = 20
+  write_capacity              = 20
+  stream_enabled              = false
+
+  attribute {
+    name = "name"
+    type = "S"
+  }
+  point_in_time_recovery {
+    enabled = false
+  }
+
+  provisioner "local-exec" {
+    command = "bash populate_plan.sh"
+  }
+}
+
 resource "aws_s3_bucket" "fileStorage" {
   bucket                      = "usege"
   #bucket_domain_name          = "usege.s3.amazonaws.com"

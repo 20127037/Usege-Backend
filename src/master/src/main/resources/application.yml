@@ -5,22 +5,23 @@ server:
 spring:
   application:
     name: master
+  zipkin:
+    base-url: http://localhost:9411
   security:
     oauth2:
-      client:
-        registration:
-          cognito:
-            clientId: 5bblk1i1g2h1t40qbl9s0std9d
-            scope: openid
-            clientName: UsegeFrontend
-        provider:
-          cognito:
-            issuerUri: https://cognito-idp.ap-southeast-1.amazonaws.com/Fm8xzxQHY
-            user-name-attribute: cognito:username
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_Fm8xzxQHY
+          jwk-set-uri: https://cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_Fm8xzxQHY/.well-known/jwks.json
 
 amazon:
   aws:
-    secretKey:
-    accessKey:
-  dynamoDb:
-    endPoint:
+    region: ap-southeast-1
+    profileName: mobile_group_1_dev
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true

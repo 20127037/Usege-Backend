@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
 
 import javax.servlet.ServletContext;
 import java.net.URI;
@@ -28,39 +27,27 @@ public class AuthController {
     @PostMapping
     public ResponseEntity<ResponseTokenDto> login(@RequestBody LoginRequestDto loginRequest)
     {
-        AuthenticationResultType authResult = authService.login(loginRequest.email(), loginRequest.password());
+        ResponseTokenDto authResult = authService.login(loginRequest.email(), loginRequest.password());
         if (authResult == null)
         {
             log.error("Failed to login {}", loginRequest.email());
             return ResponseEntity.internalServerError().build();
         }
-        ResponseTokenDto token = ResponseTokenDto.builder()
-                .accessToken(authResult.accessToken())
-                .idToken(authResult.idToken())
-                .refreshToken(authResult.refreshToken())
-                .expiresIn(authResult.expiresIn())
-                .build();
         return ResponseEntity.created(URI.create(context.getContextPath()))
-                .body(token);
+                .body(authResult);
     }
 
     //grant_type=refresh_token&refresh_token=tGzv3JOkF0XG5Qx2TlKWIA
     @PutMapping
     public ResponseEntity<ResponseTokenDto> refresh(@RequestParam("refresh_token") String refreshToken)
     {
-        AuthenticationResultType refreshResult = authService.refresh(refreshToken);
+        ResponseTokenDto refreshResult = authService.refresh(refreshToken);
         if (refreshResult == null)
         {
             log.error("Failed to get new token {}", refreshToken);
             return ResponseEntity.internalServerError().build();
         }
-        ResponseTokenDto token = ResponseTokenDto.builder()
-                .accessToken(refreshResult.accessToken())
-                .idToken(refreshResult.idToken())
-                .refreshToken(refreshResult.refreshToken())
-                .expiresIn(refreshResult.expiresIn())
-                .build();
         return ResponseEntity.created(URI.create(context.getContextPath()))
-                .body(token);
+                .body(refreshResult);
     }
 }

@@ -1,0 +1,349 @@
+{
+  "storagePlans": [
+    {
+      "PutRequest": {
+        "Item": {
+          "name": {
+            "S": "Basic"
+          },
+          "maximumSpaceInGB": {
+            "N": "5"
+          },
+          "price": {
+            "N": "0"
+          },
+          "description": {
+            "S": ""
+          },
+          "order": {
+            "N": "0"
+          },
+          "abilities": {
+            "L": [
+              {
+                "M": {
+                  "description": {
+                    "S": "Store image with 5BG"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Manage images"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Photoshop with full features"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Share to other platforms"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Create album"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Make a presentation"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Make a presentation"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "View statistic"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Securing album"
+                  },
+                  "isCovered": {
+                    "BOOL": false
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "name": {
+            "S": "Standard"
+          },
+          "maximumSpaceInGB": {
+            "N": "15"
+          },
+          "price": {
+            "N": "10"
+          },
+          "description": {
+            "S": ""
+          },
+          "order": {
+            "N": "1"
+          },
+          "abilities": {
+            "L": [
+              {
+                "M": {
+                  "description": {
+                    "S": "Store image with 15BG"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Manage images"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Photoshop with full features"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Share to other platforms"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Create album"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Make a presentation"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Make a presentation"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "View statistic"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Securing album"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "name": {
+            "S": "Premium"
+          },
+          "maximumSpaceInGB": {
+            "N": "50"
+          },
+          "price": {
+            "N": "20"
+          },
+          "description": {
+            "S": ""
+          },
+          "order": {
+            "N": "2"
+          },
+          "abilities": {
+            "L": [
+              {
+                "M": {
+                  "description": {
+                    "S": "Store image with 50BG"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Manage images"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Photoshop with full features"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Share to other platforms"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Create album"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Make a presentation"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Make a presentation"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "View statistic"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              },
+              {
+                "M": {
+                  "description": {
+                    "S": "Securing album"
+                  },
+                  "isCovered": {
+                    "BOOL": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

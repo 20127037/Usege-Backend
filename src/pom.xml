@@ -13,6 +13,10 @@
         <module>auth</module>
         <module>eureka</module>
         <module>apigw</module>
+        <module>uploadFile</module>
+        <module>sharedDynamoDB</module>
+        <module>sharedS3</module>
+        <module>sharedCognito</module>
     </modules>
     <name>usege_backend</name>
 

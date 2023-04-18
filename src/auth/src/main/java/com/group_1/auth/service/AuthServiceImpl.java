@@ -1,11 +1,12 @@
 package com.group_1.auth.service;
 
-import lombok.AllArgsConstructor;
+import com.group_1.auth.dto.ResponseTokenDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.GetUserResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.InitiateAuthResponse;
 
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class AuthServiceImpl implements AuthService {
         this.cognitoIdentityProviderClient = cognitoIdentityProviderClient;
     }
 
-    public AuthenticationResultType login(String username, String password)
+    public ResponseTokenDto login(String username, String password)
     {
         HashMap<String, String> authParams = new HashMap<>();
         authParams.put(USERNAME, username);
@@ -33,16 +34,28 @@ public class AuthServiceImpl implements AuthService {
                     .authFlow(AuthFlowType.USER_PASSWORD_AUTH)
                     .authParameters(authParams);
         });
-        return response.authenticationResult();
+        return processResponseToken(response.authenticationResult());
     }
 
-    public AuthenticationResultType refresh(String token)
+    private ResponseTokenDto processResponseToken(AuthenticationResultType authResult)
+    {
+        GetUserResponse getUserResponse = cognitoIdentityProviderClient.getUser(b -> b.accessToken(authResult.accessToken()));
+        return ResponseTokenDto.builder()
+                .userId(getUserResponse.username())
+                .accessToken(authResult.accessToken())
+                .idToken(authResult.idToken())
+                .refreshToken(authResult.refreshToken())
+                .expiresIn(authResult.expiresIn())
+                .build();
+    }
+
+    public ResponseTokenDto refresh(String token)
     {
         HashMap<String, String> authParams = new HashMap<>();
         authParams.put(REFRESH_TOKEN, token);
         InitiateAuthResponse response = cognitoIdentityProviderClient.initiateAuth(b -> b.clientId(cognitoClientId)
                 .authFlow(AuthFlowType.REFRESH_TOKEN_AUTH)
                 .authParameters(authParams));
-        return response.authenticationResult();
+        return processResponseToken(response.authenticationResult());
     }
 }

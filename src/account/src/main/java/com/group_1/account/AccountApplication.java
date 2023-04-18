@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Description: Main application for the authentication service
  */
 
-@SpringBootApplication(scanBasePackages = {"com.group_1.account", "com.group_1.sharedAws"})
+@SpringBootApplication(scanBasePackages = {"com.group_1.account", "com.group_1.sharedAws", "com.group_1.sharedCognito", "com.group_1.sharedDynamoDB"})
 public class AccountApplication {
     public static void main(String[] args)
     {

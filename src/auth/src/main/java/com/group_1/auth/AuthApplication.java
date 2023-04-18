@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Date 4/4/2023 - 2:46 PM
  * Description: ...
  */
-@SpringBootApplication(scanBasePackages = {"com.group_1.auth", "com.group_1.sharedAws"})
+@SpringBootApplication(scanBasePackages = {"com.group_1.auth", "com.group_1.sharedCognito", "com.group_1.sharedAws"})
 public class AuthApplication {
 
     public static void main(String[] args)

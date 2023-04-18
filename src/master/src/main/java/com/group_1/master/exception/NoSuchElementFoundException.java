@@ -1,6 +1,9 @@
 package com.group_1.master.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -19,3 +22,4 @@ public class NoSuchElementFoundException extends ResponseStatusException {
         super(HttpStatus.NOT_FOUND, String.format("%s was not found", elementId));
     }
 }
+

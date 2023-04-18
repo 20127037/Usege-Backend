@@ -1,5 +1,6 @@
 package com.group_1.auth.service;
 
+import com.group_1.auth.dto.ResponseTokenDto;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
 
 /**
@@ -9,7 +10,7 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.Authenticat
  * Description: ...
  */
 public interface AuthService {
-    AuthenticationResultType login(String username, String password);
-    AuthenticationResultType refresh(String token);
+    ResponseTokenDto login(String username, String password);
+    ResponseTokenDto refresh(String token);
 }
 
