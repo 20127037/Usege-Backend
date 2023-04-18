@@ -32,7 +32,6 @@ public class StoragePlan {
     public String getName() {
         return name;
     }
-    @DynamoDbSortKey
     public int getOrder() {return order;}
 }
 
