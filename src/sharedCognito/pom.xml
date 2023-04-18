@@ -30,14 +30,7 @@
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>cognitoidentity</artifactId>
         </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>sso</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>ssooidc</artifactId>
-        </dependency>
+
     </dependencies>
 
 </project>

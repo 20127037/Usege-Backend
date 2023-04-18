@@ -1,5 +1,6 @@
 package com.group_1.master.service;
 
+import com.group_1.master.exception.NoSuchElementFoundException;
 import com.group_1.sharedDynamoDB.model.UserInfo;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfo getUserInfo(String userId) {
         UserInfo userInfo = repository.getRecordById(userId);
+        if (userInfo == null)
+            throw new NoSuchElementFoundException(userId);
         return userInfo;
     }
 }

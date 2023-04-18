@@ -1,7 +1,10 @@
 package com.group_1.account.service;
 
 import com.group_1.account.dto.AccountRequestDto;
+import com.group_1.account.utilities.MemoryUtilities;
+import com.group_1.sharedDynamoDB.model.StoragePlan;
 import com.group_1.sharedDynamoDB.model.UserInfo;
+import com.group_1.sharedDynamoDB.repository.StoragePlanRepository;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,13 +27,16 @@ public class AccountServiceImpl implements AccountService {
     @Value("${amazon.aws.cognito.pool-id}")
     private String cognitoPoolId;
 
+    private final StoragePlanRepository storagePlanRepository;
     private final CognitoIdentityProviderClient cognitoIdentityProviderClient;
     private final UserRepository userRepository;
 
 
     public AccountServiceImpl(CognitoIdentityProviderClient cognitoIdentityProviderClient,
+                              StoragePlanRepository storagePlanRepository,
                               UserRepository userRepository) {
         this.cognitoIdentityProviderClient = cognitoIdentityProviderClient;
+        this.storagePlanRepository = storagePlanRepository;
         this.userRepository = userRepository;
     }
 
@@ -47,20 +53,24 @@ public class AccountServiceImpl implements AccountService {
                     .username(createAccountRequestDto.email())
                     .userAttributes(userAttrs)
                     .password(createAccountRequestDto.password()));
-        userRepository.saveRecord(UserInfo
+        StoragePlan basicPlan = storagePlanRepository.getBasicPlan();
+        UserInfo created = UserInfo
                 .builder()
                 .userId(response.userSub())
                 .email(email)
-                .storedFileCount(0L)
+                .imgCount(0L)
+                .albumCount(0L)
                 .usedSpace(0L)
-                .maxSpace(0L)
-                .storagePackId("default")
-                .purchasedPackDate(now.toString())
-                .build());
-        return UserInfo.builder()
-                .userId(response.userSub())
-                .email(email).build();
+                .maxSpace(MemoryUtilities.gbToKb(basicPlan.getMaximumSpaceInGB()))
+                .plan(basicPlan.getName())
+                .planOrder(basicPlan.getOrder())
+                .purchasedPlanDate(now.toString())
+                .build();
+        userRepository.saveRecord(created);
+        return created;
     }
+
+
 
     @Override
     public boolean confirmAccount(String username, String confirmCode) {

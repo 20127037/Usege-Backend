@@ -3,6 +3,7 @@ package com.group_1.sharedDynamoDB.repository;
 import com.group_1.sharedDynamoDB.model.UserFile;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedAsyncClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 /**
@@ -13,7 +14,7 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
  */
 @Repository
 public class UserFileDbRepository extends DynamoDbRepository<UserFile>{
-    public UserFileDbRepository(DynamoDbEnhancedAsyncClient asyncClient) {
+    public UserFileDbRepository(DynamoDbEnhancedClient asyncClient) {
         super(asyncClient.table("userFiles", TableSchema.fromBean(UserFile.class)));
     }
 }

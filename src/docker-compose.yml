@@ -87,6 +87,23 @@ services:
           source: ${USERPROFILE}\.aws
           target: /root/.aws
 
+    master:
+      image: usege/master:latest
+      container_name: master
+      ports:
+        - "8080:8080"
+      networks:
+        - spring
+        - localstack
+      depends_on:
+        - eureka-server
+        - localstack
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      volumes:
+        - type: bind
+          source: ${USERPROFILE}\.aws
+          target: /root/.aws
 
 volumes:
   localstack_data:

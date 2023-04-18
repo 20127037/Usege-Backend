@@ -15,21 +15,23 @@ import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
  */
 @AllArgsConstructor
 public  class DynamoDbRepository<TValue> {
-    private final DynamoDbAsyncTable<TValue> table;
-    public void saveRecord(TValue value) {
-        table.putItem(b -> b.item(value));
+    protected final DynamoDbTable<TValue> table;
+    public TValue saveRecord(TValue value) {
+        PutItemEnhancedResponse<TValue> response = table.putItemWithResponse(b -> b.item(value));
+        return response.attributes();
     }
 
     @SneakyThrows
     public TValue getRecordById(String id) {
         Key key = Key.builder().partitionValue(id).build();
-        return table.getItem(builder -> builder.key(key)).getNow(null);
+        return table.getItem(builder -> builder.key(key));
     }
 
     public TValue deleteRecordById(String id) {
         Key key = Key.builder().partitionValue(id).build();
-        return table.deleteItem(b -> b.key(key)).getNow(null);
+        return table.deleteItem(b -> b.key(key));
     }
+
 //
 //    public TValue updateCustomer(TValue update) {
 ////        HashMap<String, AttributeValueUpdate> updatedValues = new HashMap<>();
