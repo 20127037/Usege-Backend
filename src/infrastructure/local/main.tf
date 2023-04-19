@@ -57,10 +57,21 @@ resource "aws_dynamodb_table" "userFilesTable" {
     name = "userId"
     type = "S"
   }
+  attribute {
+    name = "contentType"
+    type = "S"
+  }
+  local_secondary_index {
+    name            = "content-type-index"
+    projection_type = "ALL"
+    range_key       = "contentType"
+  }
 
   point_in_time_recovery {
     enabled = false
   }
+
+  depends_on = [aws_dynamodb_table.userInfoTable]
 }
 
 
@@ -83,6 +94,8 @@ resource "aws_dynamodb_table" "storagePlanTable" {
   provisioner "local-exec" {
     command = "bash populate_plan.sh"
   }
+
+  depends_on = [aws_dynamodb_table.userFilesTable]
 }
 
 resource "aws_s3_bucket" "fileStorage" {
