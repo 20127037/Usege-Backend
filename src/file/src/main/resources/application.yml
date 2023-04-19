@@ -1,0 +1,25 @@
+server:
+  port: 8081
+  error:
+    include-message: always
+  servlet:
+    context-path: "/api/v1/file"
+spring:
+  application:
+    name: file
+  zipkin:
+    base-url: http://localhost:9411
+amazon:
+  aws:
+    region: ap-southeast-1
+    profileName: mobile_group_1_dev
+    cognito:
+      pool-id: ap-southeast-1_Fm8xzxQHY
+      client-id: 7b4h8r9h9f8il2qr9bii4npmo9
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
