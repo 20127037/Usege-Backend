@@ -25,6 +25,7 @@ public class S3Config {
     public S3Client dynamoDbClient() {
         S3ClientBuilder s3AsyncClientBuilder = S3Client.builder()
                 .region(awsClientConfig.region())
+                .forcePathStyle(true)
                 .credentialsProvider(awsClientConfig.credentialsProvider());
         URI overrideUri = awsClientConfig.overrideUri();
         if (overrideUri != null)
