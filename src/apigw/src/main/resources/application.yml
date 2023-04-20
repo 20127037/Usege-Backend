@@ -18,6 +18,10 @@ spring:
           uri: lb://master
           predicates:
             - Path=/api/v1/master/**
+        - id: payment
+          uri: lb://payment
+          predicates:
+            - Path=/api/v1/payment/**
   zipkin:
     base-url: http://localhost:9411
 

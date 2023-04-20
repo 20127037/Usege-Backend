@@ -1,5 +1,6 @@
 package com.group_1.master.exception;
 
+import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

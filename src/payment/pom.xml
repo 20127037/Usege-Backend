@@ -8,7 +8,8 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>master</artifactId>
+
+    <artifactId>payment</artifactId>
 
     <build>
         <plugins>
@@ -65,5 +66,12 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-sleuth-zipkin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.group_1</groupId>
+            <artifactId>utilities</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
+
 </project>

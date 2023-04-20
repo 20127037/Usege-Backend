@@ -98,6 +98,29 @@ resource "aws_dynamodb_table" "storagePlanTable" {
   depends_on = [aws_dynamodb_table.userFilesTable]
 }
 
+resource "aws_dynamodb_table" "paymentHistoriesTable" {
+  name                        = "paymentHistories"
+  deletion_protection_enabled = false
+  hash_key                    = "userId"
+  range_key                   = "planName"
+  read_capacity               = 20
+  write_capacity              = 20
+  stream_enabled              = false
+
+  attribute {
+    name = "userId"
+    type = "S"
+  }
+  attribute {
+    name = "planName"
+    type = "S"
+  }
+  point_in_time_recovery {
+    enabled = false
+  }
+  depends_on = [aws_dynamodb_table.storagePlanTable]
+}
+
 resource "aws_s3_bucket" "fileStorage" {
   bucket                      = "usege"
   #bucket_domain_name          = "usege.s3.amazonaws.com"

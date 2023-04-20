@@ -17,6 +17,8 @@
         <module>sharedDynamoDB</module>
         <module>sharedS3</module>
         <module>sharedCognito</module>
+        <module>payment</module>
+        <module>utilities</module>
     </modules>
     <name>usege_backend</name>
 
