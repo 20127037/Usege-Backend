@@ -5,9 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
 import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedResponse;
+import software.amazon.awssdk.enhanced.dynamodb.update.UpdateExpression;
 import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
 
 import java.util.function.Consumer;
@@ -29,8 +31,28 @@ public  class DynamoDbRepository<TValue> {
 
     @SneakyThrows
     public TValue getRecordById(String id) {
+        return getRecordById(id, false);
+    }
+    @SneakyThrows
+    public TValue getRecordById(String id, boolean consistent) {
         Key key = Key.builder().partitionValue(id).build();
-        return table.getItem(builder -> builder.key(key));
+        return getRecordByKey(key, consistent);
+    }
+
+    @SneakyThrows
+    public TValue getRecordByIdAndSortKey(String id, String sortKey) {
+        return getRecordByIdAndSortKey(id, sortKey, false);
+    }
+
+    @SneakyThrows
+    public TValue getRecordByIdAndSortKey(String id, String sortKey, boolean consistent) {
+        Key key = Key.builder().partitionValue(id).sortValue(sortKey).build();
+        return getRecordByKey(key, consistent);
+    }
+
+    public TValue getRecordByKey(Key key, boolean consistent)
+    {
+        return table.getItem(builder -> builder.key(key).consistentRead(consistent));
     }
 
     public TValue deleteRecordById(String id) {
@@ -40,7 +62,7 @@ public  class DynamoDbRepository<TValue> {
 
     public TValue updateRecord(String id, Consumer<TValue> updateCallback)
     {
-        TValue item = getRecordById(id);
+        TValue item = getRecordById(id, true);
         if (item == null)
             throw new NoSuchElementFoundException(id, table.tableName());
         updateCallback.accept(item);

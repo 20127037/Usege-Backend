@@ -1,9 +1,11 @@
 package com.group_1.payment.service;
 
 import com.group_1.payment.exception.InvalidCardException;
+import com.group_1.payment.exception.InvalidPlanException;
 import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import com.group_1.sharedDynamoDB.model.PaymentHistory;
 import com.group_1.sharedDynamoDB.model.StoragePlan;
+import com.group_1.sharedDynamoDB.model.UserInfo;
 import com.group_1.sharedDynamoDB.repository.PaymentHistoryRepository;
 import com.group_1.sharedDynamoDB.repository.StoragePlanRepository;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
@@ -55,9 +57,12 @@ public class PaymentServiceImpl implements PaymentService {
             throw new NoSuchElementFoundException(plan, "storagePlans");
         if (!checkCard(cardNumber, cvv, expiredDate))
             throw new InvalidCardException(cardNumber);
+        UserInfo userInfo = userRepository.getRecordById(userId);
+        StoragePlan currentPlan = storagePlanRepository.getRecordById(userInfo.getPlan());
+        if (currentPlan.getOrder() >= storagePlan.getOrder())
+            throw new InvalidPlanException(storagePlan.getName());
         String now = LocalDateTime.now().toString();
         userRepository.updateRecord(userId, i -> {
-
             i.setPlan(storagePlan.getName());
             i.setPlanOrder(storagePlan.getOrder());
             i.setMaxSpace(MemoryUtilities.gbToKb(storagePlan.getMaximumSpaceInGB()));

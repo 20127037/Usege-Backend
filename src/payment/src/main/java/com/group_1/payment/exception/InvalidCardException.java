@@ -8,3 +8,4 @@ public class InvalidCardException extends ResponseStatusException {
         super(HttpStatus.NOT_ACCEPTABLE, String.format("%s is an invalid card", cardNumber));
     }
 }
+

@@ -1,5 +1,6 @@
 package com.group_1.master.service;
 
+import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import com.group_1.sharedDynamoDB.model.UserInfo;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
 import lombok.AllArgsConstructor;

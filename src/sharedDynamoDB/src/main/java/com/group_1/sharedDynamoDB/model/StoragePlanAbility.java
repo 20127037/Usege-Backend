@@ -13,5 +13,5 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 @AllArgsConstructor
 public class StoragePlanAbility {
     private String description;
-    private boolean isCovered;
+    private Boolean isCovered;
 }

@@ -22,4 +22,11 @@ public class PaymentExceptionController {
             InvalidCardException exception
     ) {
     }
+
+    @ExceptionHandler(InvalidPlanException.class)
+    @ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE, reason = "INVALID_PLAN")
+    public void handleInvalidCardException(
+            InvalidPlanException exception
+    ) {
+    }
 }
