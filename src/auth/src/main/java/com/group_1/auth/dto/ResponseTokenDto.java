@@ -15,6 +15,6 @@ public class ResponseTokenDto {
     private final String userId;
     private final String accessToken;
     private final Integer expiresIn;
-    private final String refreshToken;
+    private String refreshToken;
     private final String idToken;
 }
