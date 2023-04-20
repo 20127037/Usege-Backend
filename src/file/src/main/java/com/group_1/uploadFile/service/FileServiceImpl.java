@@ -24,13 +24,32 @@ import java.util.UUID;
 @AllArgsConstructor
 public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
-    private final UserRepository userRepository;
-
     private final UserFileDbRepository userFileDbRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void userUploadFile(String userId, MultipartFile file) {
 
+        String contentType = file.getContentType();
+        Long fileSize = file.getSize();
+
+        UserFile userFile = UserFile
+                .builder()
+                .userId(userId)
+                .fileId(UUID.randomUUID().toString())
+                .contentType(contentType)
+                .sizeInKb(fileSize / 1024)
+                .updated(LocalDateTime.now().toString())
+                .fileUrl("")
+                .build();
+
+        userFileDbRepository.saveRecord(userFile);
+
+        // Tăng giá trị fileCount của imgCount
+        UserInfo userInfo = userRepository.getRecordById(userId);
+        userInfo.setImgCount(userInfo.getImgCount() + 1);
+        userRepository.saveRecord(userInfo);
+        
     }
 
     @Override
@@ -40,11 +59,6 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void testUploadFile(MultipartFile file) {
-        fileRepository.createFolder("9fb8b578-3fd0-4794-bff0-557659afbcfc");
-        try {
-            fileRepository.uploadFile("9fb8b578-3fd0-4794-bff0-557659afbcfc", file.getName(), file.getContentType(), file.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 }
