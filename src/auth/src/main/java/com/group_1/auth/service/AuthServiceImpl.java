@@ -56,6 +56,8 @@ public class AuthServiceImpl implements AuthService {
         InitiateAuthResponse response = cognitoIdentityProviderClient.initiateAuth(b -> b.clientId(cognitoClientId)
                 .authFlow(AuthFlowType.REFRESH_TOKEN_AUTH)
                 .authParameters(authParams));
-        return processResponseToken(response.authenticationResult());
+        ResponseTokenDto responseTokenDto = processResponseToken(response.authenticationResult());
+        responseTokenDto.setRefreshToken(token);
+        return responseTokenDto;
     }
 }
