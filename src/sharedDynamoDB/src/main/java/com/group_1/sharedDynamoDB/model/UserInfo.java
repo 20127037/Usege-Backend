@@ -33,11 +33,8 @@ public class UserInfo {
     private String plan;
     private int planOrder;
     private String purchasedPlanDate;
-    @DynamoDbAtomicCounter
     public Long getUsedSpace() {return usedSpace;}
-    @DynamoDbAtomicCounter
     public Long getImgCount() {return imgCount;}
-    @DynamoDbAtomicCounter
     public Long getAlbumCount() {return imgCount;}
     @DynamoDbPartitionKey
     public String getUserId() {

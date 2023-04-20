@@ -105,6 +105,23 @@ services:
           source: ${USERPROFILE}\.aws
           target: /root/.aws
 
+    payment:
+      image: usege/payment:latest
+      container_name: payment
+      ports:
+        - "8084:8084"
+      networks:
+        - spring
+        - localstack
+      depends_on:
+        - eureka-server
+        - localstack
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      volumes:
+        - type: bind
+          source: ${USERPROFILE}\.aws
+          target: /root/.aws
 volumes:
   localstack_data:
 

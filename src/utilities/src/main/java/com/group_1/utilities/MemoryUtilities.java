@@ -1,4 +1,4 @@
-package com.group_1.account.utilities;
+package com.group_1.utilities;
 
 /**
  * com.group_1.account.utilities
