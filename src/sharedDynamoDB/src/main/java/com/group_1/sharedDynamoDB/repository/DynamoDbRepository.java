@@ -1,11 +1,16 @@
 package com.group_1.sharedDynamoDB.repository;
 
+import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
+import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedResponse;
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
+
+import java.util.function.Consumer;
 
 /**
  * dynamo.repository
@@ -18,6 +23,7 @@ public  class DynamoDbRepository<TValue> {
     protected final DynamoDbTable<TValue> table;
     public TValue saveRecord(TValue value) {
         PutItemEnhancedResponse<TValue> response = table.putItemWithResponse(b -> b.item(value));
+
         return response.attributes();
     }
 
@@ -32,18 +38,13 @@ public  class DynamoDbRepository<TValue> {
         return table.deleteItem(b -> b.key(key));
     }
 
-//
-//    public TValue updateCustomer(TValue update) {
-////        HashMap<String, AttributeValueUpdate> updatedValues = new HashMap<>();
-////        for (Map.Entry<String, TValue> entry : updateValues)
-////        {
-////            updatedValues.put(entry.getKey(), AttributeValueUpdate.builder()
-////                    .value(AttributeValue.builder().s(entry.getValue()).build())
-////                    .action(AttributeAction.PUT)
-////                    .build());
-////        }
-//        return table.updateItem(builder -> {
-//            builder.item(update);
-//        });
-//    }
+    public TValue updateRecord(String id, Consumer<TValue> updateCallback)
+    {
+        TValue item = getRecordById(id);
+        if (item == null)
+            throw new NoSuchElementFoundException(id, table.tableName());
+        updateCallback.accept(item);
+        UpdateItemEnhancedResponse<TValue> response =  table.updateItemWithResponse(b -> b.item(item));
+        return response.attributes();
+    }
 }
