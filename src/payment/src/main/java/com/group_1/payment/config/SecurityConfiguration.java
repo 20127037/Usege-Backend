@@ -1,4 +1,4 @@
-package com.group_1.apigw.config;
+package com.group_1.payment.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,9 +18,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf()
                 .and()
-                .authorizeRequests()
-                .antMatchers("/api/v1/auth").permitAll()
-                .anyRequest().authenticated()
+                .authorizeRequests().anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer().jwt();
         return http.build();

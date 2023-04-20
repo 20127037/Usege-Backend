@@ -7,6 +7,13 @@ spring:
     name: payment
   zipkin:
     base-url: http://localhost:9411
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_Fm8xzxQHY
+          jwk-set-uri: https://cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_Fm8xzxQHY/.well-known/jwks.json
+
 
 amazon:
   aws:
