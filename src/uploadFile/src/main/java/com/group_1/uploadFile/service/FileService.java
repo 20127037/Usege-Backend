@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
  * Description: ...
  */
 public interface FileService {
-    void userUploadFile(String userId, UserFileDto userFileDto, MultipartFile file);
+    String userUploadFile(String userId, UserFileDto userFileDto, MultipartFile file);
     void userDeleteFile(String userId, String fileId);
     void testUploadFile(MultipartFile file);
 }

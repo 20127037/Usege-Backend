@@ -25,12 +25,6 @@ public class S3Config {
 
     @Bean
     public S3Client s3Client() {
-        return S3Client.builder()
-                .region(Region.AP_SOUTHEAST_1)
-                .build();
-    }
-    @Bean
-    public S3Client dynamoDbClient() {
         S3ClientBuilder s3AsyncClientBuilder = S3Client.builder()
                 .region(awsClientConfig.region())
                 .forcePathStyle(true)

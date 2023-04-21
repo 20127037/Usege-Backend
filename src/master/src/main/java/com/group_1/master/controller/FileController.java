@@ -24,7 +24,7 @@ public class FileController {
 
     private final FileService fileService;
 
-    @GetMapping("test")
+    @GetMapping
     public ResponseEntity<QueryResponse<UserFile>> getFiles(@RequestParam("userId") String userId,
                                                               @RequestParam("limit") int limit,
                                                               @RequestBody(required = false) LoadFleRequestDto requestDto)

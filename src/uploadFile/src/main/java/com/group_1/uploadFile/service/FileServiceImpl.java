@@ -5,17 +5,14 @@ import com.group_1.sharedDynamoDB.model.UserInfo;
 import com.group_1.sharedDynamoDB.repository.UserFileDbRepository;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
 import com.group_1.sharedS3.repository.FileRepository;
-import com.group_1.sharedS3.repository.S3Repository;
 import com.group_1.uploadFile.dto.UserFileDto;
-import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * com.group_1.uploadFile.service
@@ -24,21 +21,26 @@ import java.util.UUID;
  * Description: ...
  */
 @Service
-@AllArgsConstructor
+@Slf4j
 public class FileServiceImpl implements FileService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceImpl.class);
 
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
 
     private final UserFileDbRepository userFileDbRepository;
+    @Value("${amazon.aws.s3-bucket}")
+    private String bucket;
+
+    public FileServiceImpl(FileRepository fileRepository, UserRepository userRepository, UserFileDbRepository userFileDbRepository) {
+        this.fileRepository = fileRepository;
+        this.userRepository = userRepository;
+        this.userFileDbRepository = userFileDbRepository;
+    }
 
     @Override
-    public void userUploadFile(String userId, UserFileDto userFileDto, MultipartFile file) {
-        //fileRepository.createFolder("9fb8b578-3fd0-4794-bff0-557659afbcfc");
-        LOGGER.info(String.format("UserId ----> %s", userId));
-        LOGGER.info(String.format("----> %s", userFileDto));
+    public String userUploadFile(String userId, UserFileDto userFileDto, MultipartFile file) {
+        log.info(String.format("UserId ----> %s", userId));
+        log.info(String.format("----> %s", userFileDto));
         byte[] fileBytes;
         try {
             fileBytes = file.getBytes();
@@ -47,19 +49,19 @@ public class FileServiceImpl implements FileService {
         }
         String fileName = file.getOriginalFilename();
         String contentType = file.getContentType();
-        Long fileSize = file.getSize();
-        String fileUrl = String.format("http://localhost:4566/%s/%s", userId, fileName);
+        long fileSize = file.getSize() / 1024;
+        String fileUrl = String.format("http://localhost:4566/%s/%s/%s", bucket, userId, fileName);
 
-        LOGGER.info(String.format("FILE-NAME ----> %s", fileName));
-        LOGGER.info(String.format("CONTENT-TYPE ----> %s", contentType));
-        LOGGER.info(String.format("FILE-SIZE ----> %s", fileSize));
+        log.info(String.format("FILE-NAME ----> %s", fileName));
+        log.info(String.format("CONTENT-TYPE ----> %s", contentType));
+        log.info(String.format("FILE-SIZE ----> %s", fileSize));
 
         UserFile userFile = UserFile
                 .builder()
                 .userId(userId)
-                .fileId(UUID.randomUUID().toString())
+                .fileName(fileName)
                 .contentType(contentType)
-                .sizeInKb(fileSize / 1024)
+                .sizeInKb(fileSize)
                 .updated(LocalDateTime.now().toString())
                 .fileUrl(fileUrl)
                 .tags(userFileDto.getTags())
@@ -69,15 +71,19 @@ public class FileServiceImpl implements FileService {
                 .uriLocal(userFileDto.getUri())
                 .build();
 
-        userFileDbRepository.saveRecord(userFile);
-        LOGGER.info(String.format("USER FILE ----> %s", userFile.toString()));
-        // Tăng giá trị fileCount của imgCount
         UserInfo userInfo = userRepository.getRecordById(userId);
-        LOGGER.info(String.format("UserInfo ----> %s", userInfo));
-//        userInfo.setImgCount(userInfo.getImgCount() + 1);
-//        userRepository.saveRecord(userInfo);
+        if (userInfo.getUsedSpace() + fileSize >= userInfo.getMaxSpace())
+            return null;
 
-        fileRepository.uploadFile("9fb8b578-3fd0-4794-bff0-557659afbcfc", fileName, contentType, fileBytes);
+        userFileDbRepository.saveRecord(userFile);
+        log.info(String.format("USER FILE ----> %s", userFile.toString()));
+        // Tăng giá trị fileCount của imgCount
+        userRepository.updateRecord(userId, u -> {
+            u.setUsedSpace(u.getUsedSpace() + fileSize);
+            u.setImgCount(u.getImgCount() + 1);
+        });
+        fileRepository.uploadFile(userId, fileName, contentType, fileBytes);
+        return fileUrl;
     }
 
     @Override
@@ -87,7 +93,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void testUploadFile(MultipartFile file) {
-        fileRepository.createFolder("9fb8b578-3fd0-4794-bff0-557659afbcfc");
+//        fileRepository.createFolder("9fb8b578-3fd0-4794-bff0-557659afbcfc");
         try {
             fileRepository.uploadFile("9fb8b578-3fd0-4794-bff0-557659afbcfc", file.getName(), file.getContentType(), file.getBytes());
         } catch (IOException e) {

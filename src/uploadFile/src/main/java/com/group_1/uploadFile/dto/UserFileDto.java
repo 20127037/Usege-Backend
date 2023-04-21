@@ -12,11 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserFileDto {
-    private String fileId;
     private List<String> tags;
     private String description;
     private String date;
-    private long size;
     private String location;
     private String uri;
 }
