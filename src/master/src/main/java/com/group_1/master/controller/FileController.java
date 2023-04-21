@@ -24,10 +24,10 @@ public class FileController {
 
     private final FileService fileService;
 
-    @GetMapping
-    public ResponseEntity<QueryResponse<UserFile>> getFiles(@RequestParam("userId") String userId,
+    @GetMapping("{id}")
+    public ResponseEntity<QueryResponse<UserFile>> getFiles(@PathVariable String id,
                                                               @RequestParam("limit") int limit,
-                                                              @RequestBody(required = false) LoadFleRequestDto requestDto)
+                                                              @RequestBody LoadFleRequestDto requestDto)
     {
         Map<String, AttributeValue> attributeValueMap = null;
         if (requestDto.lastKey() != null)
@@ -36,7 +36,7 @@ public class FileController {
             Map<String, AttributeValue> finalAttributeValueMap = attributeValueMap;
             requestDto.lastKey().forEach((k, v) -> finalAttributeValueMap.put(k, AttributeValue.fromS(v)));
         }
-        return ResponseEntity.ok(fileService.queryFiles(userId, limit, attributeValueMap, requestDto.attributes()));
+        return ResponseEntity.ok(fileService.queryFiles(id, limit, attributeValueMap, requestDto.attributes()));
     }
 
 //    @PostMapping("test")
