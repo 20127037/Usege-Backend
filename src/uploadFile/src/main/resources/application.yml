@@ -5,6 +5,8 @@ server:
   servlet:
     context-path: "/api/v1/file"
 spring:
+  main:
+    allow-bean-definition-overriding: true
   application:
     name: uploadFile
   zipkin:
