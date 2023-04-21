@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="apigw" />
+        <module name="uploadFile" />
+        <module name="sharedAws" />
+        <module name="sharedDynamoDB" />
+        <module name="auth" />
+        <module name="eureka" />
+        <module name="account" />
+        <module name="sharedS3" />
+        <module name="master" />
+        <module name="sharedCognito" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="account" target="16" />
+      <module name="apigw" target="16" />
+      <module name="auth" target="16" />
+      <module name="eureka" target="16" />
+      <module name="master" target="16" />
+      <module name="sharedAws" target="16" />
+      <module name="sharedCognito" target="16" />
+      <module name="sharedDynamoDB" target="16" />
+      <module name="sharedS3" target="16" />
+      <module name="uploadFile" target="16" />
+      <module name="usege_backend" target="16" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

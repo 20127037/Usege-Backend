@@ -1,17 +1,15 @@
 package com.group_1.sharedDynamoDB.repository;
 
 import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
+import com.group_1.sharedDynamoDB.model.QueryResponse;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbAsyncTable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.model.PutItemEnhancedResponse;
-import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedResponse;
-import software.amazon.awssdk.enhanced.dynamodb.update.UpdateExpression;
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
+import software.amazon.awssdk.enhanced.dynamodb.model.*;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -68,5 +66,27 @@ public  class DynamoDbRepository<TValue> {
         updateCallback.accept(item);
         UpdateItemEnhancedResponse<TValue> response =  table.updateItemWithResponse(b -> b.item(item));
         return response.attributes();
+    }
+
+    public QueryResponse<TValue> query(QueryConditional queryConditional, int limit,
+                               Map<String, AttributeValue> exclusiveStartKey,
+                               boolean forward,
+                               String... attributes)
+    {
+        PageIterable<TValue> response = table.query(b -> {
+            b
+                    .queryConditional(queryConditional)
+                    .limit(limit)
+                    .exclusiveStartKey(exclusiveStartKey);
+            if (attributes != null && attributes.length > 0)
+                b.attributesToProject(attributes);
+            b.scanIndexForward(forward);
+        });
+
+        Page<TValue> next = response.iterator().next();
+        return new QueryResponse<>(
+                next.lastEvaluatedKey(),
+                next.items()
+        );
     }
 }

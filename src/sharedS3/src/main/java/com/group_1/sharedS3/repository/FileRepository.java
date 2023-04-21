@@ -7,9 +7,9 @@ package com.group_1.sharedS3.repository;
  * Description: ...
  */
 public interface FileRepository {
-    boolean folderExists(String name);
-    void createFolder(String name);
-    void deleteFolder(String name);
+//    boolean folderExists(String name);
+//    void createFolder(String name);
+//    void deleteFolder(String name);
     void deleteFile(String folder, String fileName);
     void uploadFile(String folder, String fileName, String contentType, byte[] content);
 }

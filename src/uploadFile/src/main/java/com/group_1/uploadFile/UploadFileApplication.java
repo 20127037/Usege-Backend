@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Date 4/19/2023 - 12:42 PM
  * Description: ...
  */
-@SpringBootApplication(scanBasePackages = {"com.group_1.uploadFile", "com.group_1.sharedS3", "com.group_1.sharedAws"})
+@SpringBootApplication(scanBasePackages = {"com.group_1.uploadFile", "com.group_1.sharedS3", "com.group_1.sharedAws", "com.group_1.sharedDynamoDB"})
 public class UploadFileApplication {
 
     public static void main(String[] args)

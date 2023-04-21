@@ -44,13 +44,17 @@ resource "aws_dynamodb_table" "userFilesTable" {
   deletion_protection_enabled = false
   hash_key                    = "userId"
   #id                          = "userFiles"
-  range_key                   = "fileId"
+  range_key                   = "updated"
   read_capacity               = 20
   write_capacity              = 20
   stream_enabled              = false
 
   attribute {
-    name = "fileId"
+    name = "updated"
+    type = "S"
+  }
+  attribute {
+    name = "uriLocal"
     type = "S"
   }
   attribute {
@@ -65,6 +69,15 @@ resource "aws_dynamodb_table" "userFilesTable" {
     name            = "content-type-index"
     projection_type = "ALL"
     range_key       = "contentType"
+  }
+
+  global_secondary_index {
+    hash_key           = "uriLocal"
+    name               = "uri-local-index"
+    non_key_attributes = []
+    projection_type    = "KEYS_ONLY"
+    read_capacity      = 20
+    write_capacity     = 20
   }
 
   point_in_time_recovery {

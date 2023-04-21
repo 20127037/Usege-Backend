@@ -1,11 +1,12 @@
 package com.group_1.sharedS3.repository;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
-import software.amazon.awssdk.services.s3.model.StorageClass;
+import software.amazon.awssdk.services.s3.model.*;
+
+import java.nio.file.Path;
 
 
 /**
@@ -15,26 +16,38 @@ import software.amazon.awssdk.services.s3.model.StorageClass;
  * Description: ...
  */
 @Repository
-@AllArgsConstructor
 public class S3Repository implements FileRepository {
     private final S3Client s3Client;
-    public boolean folderExists(String name)
-    {
-        try {
-            s3Client.headBucket(b -> b.bucket(name));
-            return true;
-        } catch (NoSuchBucketException e) {
-            return false;
-        }
+    @Value("${amazon.aws.s3-bucket}")
+    private String bucket;
+
+    public S3Repository(S3Client s3Client) {
+        this.s3Client = s3Client;
     }
-    public void createFolder(String name)
-    {
-        s3Client.createBucket(b -> b.bucket(name));
-    }
-    public void deleteFolder(String name)
-    {
-        s3Client.deleteBucket(b -> b.bucket(name));
-    }
+
+//    public boolean folderExists(String name)
+//    {
+//        try {
+//            GetObjectAttributesResponse response = s3Client.getObjectAttributes(b -> {
+//                b.bucket(bucket).key(name);
+//            });
+//            return response != null;
+//        } catch (NoSuchKeyException e) {
+//            return false;
+//        }
+//    }
+//    public void createFolder(String name)
+//    {
+//        s3Client.putObject(builder -> builder.bucket(folder)
+//                .storageClass(StorageClass.ONEZONE_IA)
+//                .acl(ObjectCannedACL.PUBLIC_READ_WRITE)
+//                .key(fileName)
+//                .contentType(contentType), RequestBody.fromBytes(content));
+//    }
+//    public void deleteFolder(String name)
+//    {
+//        s3Client.deleteBucket(b -> b.bucket(name));
+//    }
     public void deleteFile(String folder, String fileName)
     {
         s3Client.deleteObject(builder -> builder.bucket(folder)
@@ -42,9 +55,12 @@ public class S3Repository implements FileRepository {
     }
     public void uploadFile(String folder, String fileName, String contentType, byte[] content)
     {
-        s3Client.putObject(builder -> builder.bucket(folder)
+        String key = String.format("%s/%s", folder, fileName);
+        PutObjectResponse response = s3Client.putObject(builder -> builder
+                .bucket(bucket)
                 .storageClass(StorageClass.ONEZONE_IA)
-                .key(fileName)
+                .acl(ObjectCannedACL.PUBLIC_READ)
+                .key(key)
                 .contentType(contentType), RequestBody.fromBytes(content));
     }
 }
