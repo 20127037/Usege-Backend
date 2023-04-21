@@ -4,6 +4,7 @@ import com.group_1.sharedAws.config.AwsClientConfig;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -21,6 +22,13 @@ import java.net.URI;
 @AllArgsConstructor
 public class S3Config {
     private final AwsClientConfig awsClientConfig;
+
+    @Bean
+    public S3Client s3Client() {
+        return S3Client.builder()
+                .region(Region.AP_SOUTHEAST_1)
+                .build();
+    }
     @Bean
     public S3Client dynamoDbClient() {
         S3ClientBuilder s3AsyncClientBuilder = S3Client.builder()
