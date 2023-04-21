@@ -45,10 +45,14 @@ public class FileServiceImpl implements FileService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        String fileName = file.getName();
+        String fileName = file.getOriginalFilename();
         String contentType = file.getContentType();
         Long fileSize = file.getSize();
         String fileUrl = String.format("http://localhost:4566/%s/%s", userId, fileName);
+
+        LOGGER.info(String.format("FILE-NAME ----> %s", fileName));
+        LOGGER.info(String.format("CONTENT-TYPE ----> %s", contentType));
+        LOGGER.info(String.format("FILE-SIZE ----> %s", fileSize));
 
         UserFile userFile = UserFile
                 .builder()
@@ -66,9 +70,9 @@ public class FileServiceImpl implements FileService {
                 .build();
 
         userFileDbRepository.saveRecord(userFile);
-
+        LOGGER.info(String.format("USER FILE ----> %s", userFile.toString()));
         // Tăng giá trị fileCount của imgCount
-        UserInfo userInfo = userRepository.getRecordById("userId");
+        UserInfo userInfo = userRepository.getRecordById(userId);
         LOGGER.info(String.format("UserInfo ----> %s", userInfo));
 //        userInfo.setImgCount(userInfo.getImgCount() + 1);
 //        userRepository.saveRecord(userInfo);
