@@ -8,6 +8,7 @@ import software.amazon.awssdk.enhanced.dynamodb.extensions.annotations.DynamoDbA
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 import java.time.LocalDateTime;
 
@@ -45,3 +46,5 @@ public class UserInfo {
         return email;
     }
 }
+
+

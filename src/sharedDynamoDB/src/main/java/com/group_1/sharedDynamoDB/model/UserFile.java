@@ -42,6 +42,8 @@ public class UserFile {
     public String getUpdated() {
         return updated;
     }
+    @DynamoDbSecondarySortKey(indexNames = "file-name-index")
+    public String getFileName() {return fileName;}
     @DynamoDbSecondarySortKey(indexNames = "content-type-index")
     public String getContentType() {return contentType;}
     @DynamoDbSecondarySortKey(indexNames = "uri-local-index")
