@@ -31,6 +31,9 @@ public class UserFile {
     private String date;
     private String location;
     private String uriLocal;
+    private Boolean isFavourite;
+    private Boolean isDeleted;
+    private Integer remainingDays;
     @DynamoDbPartitionKey
     public String getUserId() {
         return userId;
@@ -41,6 +44,14 @@ public class UserFile {
     }
     @DynamoDbSecondarySortKey(indexNames = "content-type-index")
     public String getContentType() {return contentType;}
-    @DynamoDbSecondaryPartitionKey(indexNames = "uri-local-index")
+    @DynamoDbSecondarySortKey(indexNames = "uri-local-index")
     public String getUriLocal() {return uriLocal;}
+    @DynamoDbSecondarySortKey(indexNames = "favourite-index")
+    public Boolean getFavourite() {
+        return isFavourite;
+    }
+    @DynamoDbSecondarySortKey(indexNames = "deleted-index")
+    public Boolean getDeleted() {
+        return isDeleted;
+    }
 }
