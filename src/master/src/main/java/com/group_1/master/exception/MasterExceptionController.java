@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class MasterExceptionController {
     @ExceptionHandler(NoSuchElementFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "NOT_FOUND")
-    public void handleInvalidPasswordException(
+    public void handleNoElementException(
             NoSuchElementFoundException exception
     ) {
     }

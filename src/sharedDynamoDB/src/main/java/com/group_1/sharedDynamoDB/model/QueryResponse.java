@@ -18,7 +18,9 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class QueryResponse<S> {
-    Map<String, AttributeValue> lastEvaluatedKey;
+    Map<String, String> nextEvaluatedKey;
+    Map<String, String> prevEvaluatedKey;
     List<S> response;
 }

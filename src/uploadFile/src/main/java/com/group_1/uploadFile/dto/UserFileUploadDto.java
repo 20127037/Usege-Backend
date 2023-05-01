@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserFileDto {
+public class UserFileUploadDto {
     private List<String> tags;
     private String description;
     private String date;

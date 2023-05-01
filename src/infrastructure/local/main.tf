@@ -39,6 +39,61 @@ resource "aws_dynamodb_table" "userInfoTable" {
   }
 }
 
+resource "aws_dynamodb_table" "userAlbumsTable" {
+  name                        = "userAlbums"
+  deletion_protection_enabled = false
+  hash_key                    = "userId"
+  #id                          = "userFiles"
+  range_key                   = "name"
+  read_capacity               = 20
+  write_capacity              = 20
+  stream_enabled              = false
+
+  attribute {
+    name = "userId"
+    type = "S"
+  }
+  attribute {
+    name = "name"
+    type = "S"
+  }
+  point_in_time_recovery {
+    enabled = false
+  }
+}
+
+resource "aws_dynamodb_table" "userFilesInAlbumTable" {
+  name                        = "userFilesInAlbum"
+  deletion_protection_enabled = false
+  hash_key                    = "userId"
+  range_key                   = "updated"
+  read_capacity               = 20
+  write_capacity              = 20
+  stream_enabled              = false
+
+  attribute {
+    name = "userId"
+    type = "S"
+  }
+  attribute {
+    name = "updated"
+    type = "S"
+  }
+  attribute {
+    name = "albumName"
+    type = "S"
+  }
+  local_secondary_index {
+    name            = "album-index"
+    projection_type = "ALL"
+    range_key       = "albumName"
+  }
+  point_in_time_recovery {
+    enabled = false
+  }
+}
+
+
 resource "aws_dynamodb_table" "userFilesTable" {
   name                        = "userFiles"
   deletion_protection_enabled = false
@@ -50,41 +105,54 @@ resource "aws_dynamodb_table" "userFilesTable" {
   stream_enabled              = false
 
   attribute {
-    name = "updated"
-    type = "S"
-  }
-  attribute {
-    name = "uriLocal"
-    type = "S"
-  }
-  attribute {
     name = "userId"
     type = "S"
   }
   attribute {
-    name = "contentType"
+    name = "updated"
     type = "S"
   }
-  local_secondary_index {
-    name            = "content-type-index"
-    projection_type = "ALL"
-    range_key       = "contentType"
+  attribute {
+    name = "isFavourite"
+    type = "BOOL"
+  }
+  attribute {
+    name = "isDeleted"
+    type = "BOOL"
+  }
+  attribute {
+    name = "fileName"
+    type = "S"
+  }
+  attribute {
+    name = "originalUri"
+    type = "S"
   }
 
-  global_secondary_index {
-    hash_key           = "uriLocal"
-    name               = "uri-local-index"
-    non_key_attributes = []
-    projection_type    = "KEYS_ONLY"
-    read_capacity      = 20
-    write_capacity     = 20
+  local_secondary_index {
+    name            = "file-name-index"
+    projection_type = "KEYS_ONLY"
+    range_key       = "fileName"
+  }
+  local_secondary_index {
+    name            = "uri-index"
+    projection_type = "KEYS_ONLY"
+    range_key       = "originalUri"
+  }
+  local_secondary_index {
+    name            = "favourite-index"
+    projection_type = "ALL"
+    range_key       = "isFavourite"
+  }
+  local_secondary_index {
+    name            = "deleted-index"
+    projection_type = "ALL"
+    range_key       = "isDeleted"
   }
 
   point_in_time_recovery {
     enabled = false
   }
-
-  depends_on = [aws_dynamodb_table.userInfoTable]
 }
 
 
@@ -107,8 +175,6 @@ resource "aws_dynamodb_table" "storagePlanTable" {
   provisioner "local-exec" {
     command = "bash populate_plan.sh"
   }
-
-  depends_on = [aws_dynamodb_table.userFilesTable]
 }
 
 resource "aws_dynamodb_table" "paymentHistoriesTable" {
@@ -131,17 +197,11 @@ resource "aws_dynamodb_table" "paymentHistoriesTable" {
   point_in_time_recovery {
     enabled = false
   }
-  depends_on = [aws_dynamodb_table.storagePlanTable]
 }
 
 resource "aws_s3_bucket" "fileStorage" {
-  bucket                      = "usege"
-  #bucket_domain_name          = "usege.s3.amazonaws.com"
-  #bucket_regional_domain_name = "usege.s3.ap-southeast-1.amazonaws.com"
-  #hosted_zone_id              = "Z3O0J2DXBE1FTB"
-  #id                          = "usege"
-  object_lock_enabled         = false
-  #region                      = "ap-southeast-1"
+  bucket              = "usege"
+  object_lock_enabled = false
 }
 
 #resource "aws_cognito_user_pool" "user_pool" {

@@ -5,13 +5,18 @@ import com.group_1.sharedDynamoDB.model.UserInfo;
 import com.group_1.sharedDynamoDB.repository.UserFileDbRepository;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
 import com.group_1.sharedS3.repository.FileRepository;
-import com.group_1.uploadFile.dto.UserFileDto;
+import com.group_1.uploadFile.dto.UserFileRefUploadDto;
+import com.group_1.uploadFile.dto.UserFileUploadDto;
+import com.group_1.uploadFile.exception.ExceedSpaceException;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
 import java.time.LocalDateTime;
 
 /**
@@ -37,25 +42,27 @@ public class FileServiceImpl implements FileService {
         this.userFileDbRepository = userFileDbRepository;
     }
 
+    @SneakyThrows
     @Override
-    public String userUploadFile(String userId, UserFileDto userFileDto, MultipartFile file) {
+    public String userUploadFile(String userId, UserFileUploadDto userFileDto, MultipartFile file) {
         log.info(String.format("UserId ----> %s", userId));
         log.info(String.format("----> %s", userFileDto));
-        byte[] fileBytes;
-        try {
-            fileBytes = file.getBytes();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        byte[] fileBytes = file.getBytes();
         String fileName = file.getOriginalFilename();
         String contentType = file.getContentType();
         long fileSize = file.getSize() / 1024;
-        String fileUrl = String.format("http://localhost:4566/%s/%s/%s", bucket, userId, fileName);
+        String fileUri = String.format("http://localhost:4566/%s/%s/%s", bucket, userId, fileName);
 
         log.info(String.format("FILE-NAME ----> %s", fileName));
         log.info(String.format("CONTENT-TYPE ----> %s", contentType));
         log.info(String.format("FILE-SIZE ----> %s", fileSize));
 
+        UserInfo userInfo = userRepository.getRecordById(userId);
+        //Check file size
+        if (userInfo.getUsedSpace() + fileSize >= userInfo.getMaxSpace())
+            throw new ExceedSpaceException(userInfo.getMaxSpace(), userInfo.getUsedSpace(), fileSize);
+
+        //Create userFile record
         UserFile userFile = UserFile
                 .builder()
                 .userId(userId)
@@ -63,27 +70,55 @@ public class FileServiceImpl implements FileService {
                 .contentType(contentType)
                 .sizeInKb(fileSize)
                 .updated(LocalDateTime.now().toString())
-                .fileUrl(fileUrl)
+                .tinyUri(fileUri)
+                .normalUri(fileUri)
                 .tags(userFileDto.getTags())
                 .date(userFileDto.getDate())
                 .description(userFileDto.getDescription())
                 .location(userFileDto.getLocation())
-                .uriLocal(userFileDto.getUri())
+                .originalUri(userFileDto.getUri())
+                .isDeleted(false)
+                .isFavourite(false)
                 .build();
-
-        UserInfo userInfo = userRepository.getRecordById(userId);
-        if (userInfo.getUsedSpace() + fileSize >= userInfo.getMaxSpace())
-            return null;
-
         userFileDbRepository.saveRecord(userFile);
         log.info(String.format("USER FILE ----> %s", userFile.toString()));
-        // Tăng giá trị fileCount của imgCount
+        //Update user info
         userRepository.updateRecord(userId, u -> {
+            // Increase used space
             u.setUsedSpace(u.getUsedSpace() + fileSize);
+            // Increase imgCount
             u.setImgCount(u.getImgCount() + 1);
         });
         fileRepository.uploadFile(userId, fileName, contentType, fileBytes);
-        return fileUrl;
+        return fileUri;
+    }
+
+    @Override
+    public String userUploadRefFile(String userId, UserFileRefUploadDto refUploadDto) {
+        //Create userFile record
+        String now = LocalDateTime.now().toString();
+        UserFile userFile = UserFile
+                .builder()
+                .userId(userId)
+                .fileName(refUploadDto.fileName())
+                .contentType(ContentType.IMAGE_JPEG.getMimeType())
+                .sizeInKb(0L)
+                .updated(now)
+                .tinyUri(refUploadDto.tinyUri())
+                .normalUri(refUploadDto.uri())
+                .date(now)
+                .description(refUploadDto.description())
+                .isDeleted(false)
+                .isFavourite(false)
+                .build();
+        userFileDbRepository.saveRecord(userFile);
+        log.info(String.format("USER FILE ----> %s", userFile.toString()));
+        //Update user info
+        userRepository.updateRecord(userId, u -> {
+            // Increase imgCount
+            u.setImgCount(u.getImgCount() + 1);
+        });
+        return refUploadDto.uri();
     }
 
     @Override
