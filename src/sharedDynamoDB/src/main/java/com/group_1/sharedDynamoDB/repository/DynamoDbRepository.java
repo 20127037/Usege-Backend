@@ -5,10 +5,12 @@ import com.group_1.sharedDynamoDB.model.QueryResponse;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -27,6 +29,14 @@ public  class DynamoDbRepository<TValue> {
         return response.attributes();
     }
 
+    public TValue getRecordByKeyAndAttributes(Key key, boolean consistent)
+    {
+        return table
+                .getItem(builder -> builder
+                        .key(key)
+                        .consistentRead(consistent));
+    }
+
     @SneakyThrows
     public TValue getRecordById(String id) {
         return getRecordById(id, false);
@@ -36,12 +46,6 @@ public  class DynamoDbRepository<TValue> {
         Key key = Key.builder().partitionValue(id).build();
         return getRecordByKey(key, consistent);
     }
-
-    @SneakyThrows
-    public TValue getRecordByIdAndSortKey(String id, String sortKey) {
-        return getRecordByIdAndSortKey(id, sortKey, false);
-    }
-
     @SneakyThrows
     public TValue getRecordByIdAndSortKey(String id, String sortKey, boolean consistent) {
         Key key = Key.builder().partitionValue(id).sortValue(sortKey).build();
@@ -68,14 +72,16 @@ public  class DynamoDbRepository<TValue> {
         return response.attributes();
     }
 
-    public QueryResponse<TValue> query(QueryConditional queryConditional, int limit,
-                               Map<String, AttributeValue> exclusiveStartKey,
-                               boolean forward,
-                               String... attributes)
-    {
+    public QueryResponse<TValue> query(QueryConditional queryConditional,
+                                       Expression expression,
+                                       int limit,
+                                       Map<String, AttributeValue> exclusiveStartKey,
+                                       boolean forward,
+                                       String... attributes) {
         PageIterable<TValue> response = table.query(b -> {
             b
                     .queryConditional(queryConditional)
+                    .filterExpression(expression)
                     .limit(limit)
                     .exclusiveStartKey(exclusiveStartKey);
             if (attributes != null && attributes.length > 0)
@@ -84,9 +90,16 @@ public  class DynamoDbRepository<TValue> {
         });
 
         Page<TValue> next = response.iterator().next();
-        return new QueryResponse<>(
-                next.lastEvaluatedKey(),
-                next.items()
-        );
+        Map<String, AttributeValue> lastKey = next.lastEvaluatedKey();
+        Map<String, String> lastKeyStrings = null;
+        if (lastKey != null) {
+            lastKeyStrings = new HashMap<>();
+            Map<String, String> finalLastKeyStrings = lastKeyStrings;
+            lastKey.forEach((k, v) -> finalLastKeyStrings.put(k, v.s()));
+        }
+        return QueryResponse.<TValue>builder()
+                .response(next.items())
+                .nextEvaluatedKey(lastKeyStrings)
+                .build();
     }
 }
