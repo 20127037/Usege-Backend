@@ -1,8 +1,7 @@
 package com.group_1.uploadFile.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.group_1.uploadFile.dto.UserFileDto;
+import com.group_1.uploadFile.dto.UserFileRefUploadDto;
+import com.group_1.uploadFile.dto.UserFileUploadDto;
 import com.group_1.uploadFile.service.FileService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -29,10 +28,20 @@ public class UploadFileController {
             MediaType.MULTIPART_FORM_DATA_VALUE
     })
     public ResponseEntity<String> uploadFiles(@PathVariable String id,
-                                              @RequestPart("info") UserFileDto info,
+                                              @RequestPart("info") UserFileUploadDto info,
                                               @RequestPart("file") MultipartFile file)
     {
         String url = fileService.userUploadFile(id, info, file);
+        if (url == null)
+            return ResponseEntity.badRequest().build();
+        return ResponseEntity.created(URI.create(url)).body(url);
+    }
+
+
+    @PostMapping("ref/{id}")
+    public ResponseEntity<String> uploadRefFile(@PathVariable String id, @RequestBody UserFileRefUploadDto refUploadDto)
+    {
+        String url = fileService.userUploadRefFile(id, refUploadDto);
         if (url == null)
             return ResponseEntity.badRequest().build();
         return ResponseEntity.created(URI.create(url)).body(url);
