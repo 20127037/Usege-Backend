@@ -13,8 +13,10 @@ import java.util.Map;
  * Description: ...
  */
 public interface FileService {
-
     QueryResponse<UserFile> queryFiles(String userId, int limit,
-                                       Map<String, AttributeValue> startKey,
-                                       String[] attributes);
+                                              Boolean isFavourite,
+                                              Boolean isDeleted,
+                                              Map<String, AttributeValue> startKey,
+                                              String[] attributes);
+    UserFile getFile(String userId, String fileName, String uri);
 }
