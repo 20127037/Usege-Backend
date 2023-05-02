@@ -5,7 +5,7 @@ import com.group_1.sharedDynamoDB.model.StoragePlan;
 import com.group_1.sharedDynamoDB.model.UserInfo;
 import com.group_1.sharedDynamoDB.repository.PaymentHistoryRepository;
 import com.group_1.sharedDynamoDB.repository.StoragePlanRepository;
-import com.group_1.sharedDynamoDB.repository.UserFileDbRepository;
+import com.group_1.sharedDynamoDB.repository.UserFileRepository;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
 import com.group_1.utilities.MemoryUtilities;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,13 +32,13 @@ public class AccountServiceImpl implements AccountService {
     private final StoragePlanRepository storagePlanRepository;
     private final CognitoIdentityProviderClient cognitoIdentityProviderClient;
     private final PaymentHistoryRepository paymentHistoryRepository;
-    private final UserFileDbRepository userFileDbRepository;
+    private final UserFileRepository userFileDbRepository;
     private final UserRepository userRepository;
 
 
     public AccountServiceImpl(CognitoIdentityProviderClient cognitoIdentityProviderClient,
                               StoragePlanRepository storagePlanRepository,
-                              PaymentHistoryRepository paymentHistoryRepository, UserFileDbRepository userFileDbRepository, UserRepository userRepository) {
+                              PaymentHistoryRepository paymentHistoryRepository, UserFileRepository userFileDbRepository, UserRepository userRepository) {
         this.cognitoIdentityProviderClient = cognitoIdentityProviderClient;
         this.storagePlanRepository = storagePlanRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
@@ -67,6 +67,7 @@ public class AccountServiceImpl implements AccountService {
                 .imgCount(0L)
                 .albumCount(0L)
                 .usedSpace(0L)
+                .deletedImgCount(0L)
                 .maxSpace(MemoryUtilities.gbToKb(basicPlan.getMaximumSpaceInGB()))
                 .plan(basicPlan.getName())
                 .planOrder(basicPlan.getOrder())
