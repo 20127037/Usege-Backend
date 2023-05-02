@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class QueryResponse<S> {
     Map<String, String> nextEvaluatedKey;
     Map<String, String> prevEvaluatedKey;

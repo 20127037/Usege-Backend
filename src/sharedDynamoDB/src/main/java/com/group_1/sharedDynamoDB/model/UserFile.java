@@ -8,6 +8,7 @@ import lombok.experimental.FieldNameConstants;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * com.group_1.sharedAws.model
@@ -22,6 +23,11 @@ import java.util.List;
 @FieldNameConstants
 @AllArgsConstructor
 public class UserFile {
+    public interface Indexes
+    {
+        String UPDATED = "updated-index";
+    }
+
     private String userId;
     private String fileName;
     private String contentType;
@@ -31,33 +37,22 @@ public class UserFile {
     private String description;
     private String date;
     private String location;
-    //uri to image in local
-    private String originalUri;
     //uri to normal (bigger) version of image
     private String normalUri;
     //uri to tiny version of image
     private String tinyUri;
     private Boolean isFavourite;
-    private Boolean isDeleted;
     private Integer remainingDays;
+    private Set<String> previousAlbums;
+
     @DynamoDbPartitionKey
     public String getUserId() {
         return userId;
     }
-    @DynamoDbSortKey
+    @DynamoDbSecondarySortKey(indexNames = Indexes.UPDATED)
     public String getUpdated() {
         return updated;
     }
-    @DynamoDbSecondarySortKey(indexNames = "file-name-index")
+    @DynamoDbSortKey
     public String getFileName() {return fileName;}
-    @DynamoDbSecondarySortKey(indexNames = "uri-index")
-    public String getOriginalUri() {return originalUri;}
-    @DynamoDbSecondarySortKey(indexNames = "favourite-index")
-    public Boolean getFavourite() {
-        return isFavourite;
-    }
-    @DynamoDbSecondarySortKey(indexNames = "deleted-index")
-    public Boolean getDeleted() {
-        return isDeleted;
-    }
 }

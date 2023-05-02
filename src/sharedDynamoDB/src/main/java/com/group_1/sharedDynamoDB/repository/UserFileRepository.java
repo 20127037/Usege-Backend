@@ -13,8 +13,8 @@ import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
  * Description: ...
  */
 @Repository
-public class UserFileDbRepository extends DynamoDbRepository<UserFile>{
-    public UserFileDbRepository(DynamoDbEnhancedClient asyncClient) {
+public class UserFileRepository extends DynamoDbRepository<UserFile>{
+    public UserFileRepository(DynamoDbEnhancedClient asyncClient) {
         super(asyncClient.table("userFiles", TableSchema.fromBean(UserFile.class)));
     }
 }

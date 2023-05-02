@@ -27,6 +27,7 @@ public class UserInfo {
     private String userId;
     private String email;
     //Use kb unit
+    private Long deletedImgCount;
     private Long imgCount;
     private Long albumCount;
     private Long usedSpace;
@@ -34,9 +35,6 @@ public class UserInfo {
     private String plan;
     private int planOrder;
     private String purchasedPlanDate;
-    public Long getUsedSpace() {return usedSpace;}
-    public Long getImgCount() {return imgCount;}
-    public Long getAlbumCount() {return imgCount;}
     @DynamoDbPartitionKey
     public String getUserId() {
         return userId;
