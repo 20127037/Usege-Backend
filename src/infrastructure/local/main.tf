@@ -83,10 +83,19 @@ resource "aws_dynamodb_table" "userFilesInAlbumTable" {
     name = "albumName"
     type = "S"
   }
+  attribute {
+    name = "fileName"
+    type = "S"
+  }
   local_secondary_index {
     name            = "album-index"
     projection_type = "ALL"
     range_key       = "albumName"
+  }
+  local_secondary_index {
+    name            = "file-name-index"
+    projection_type = "ALL"
+    range_key       = "fileName"
   }
   point_in_time_recovery {
     enabled = false
@@ -99,7 +108,7 @@ resource "aws_dynamodb_table" "userFilesTable" {
   deletion_protection_enabled = false
   hash_key                    = "userId"
   #id                          = "userFiles"
-  range_key                   = "updated"
+  range_key                   = "fileName"
   read_capacity               = 20
   write_capacity              = 20
   stream_enabled              = false
@@ -113,47 +122,55 @@ resource "aws_dynamodb_table" "userFilesTable" {
     type = "S"
   }
   attribute {
-    name = "isFavourite"
-    type = "BOOL"
-  }
-  attribute {
-    name = "isDeleted"
-    type = "BOOL"
-  }
-  attribute {
     name = "fileName"
-    type = "S"
-  }
-  attribute {
-    name = "originalUri"
     type = "S"
   }
 
   local_secondary_index {
-    name            = "file-name-index"
-    projection_type = "KEYS_ONLY"
-    range_key       = "fileName"
-  }
-  local_secondary_index {
-    name            = "uri-index"
-    projection_type = "KEYS_ONLY"
-    range_key       = "originalUri"
-  }
-  local_secondary_index {
-    name            = "favourite-index"
+    name            = "updated-index"
     projection_type = "ALL"
-    range_key       = "isFavourite"
-  }
-  local_secondary_index {
-    name            = "deleted-index"
-    projection_type = "ALL"
-    range_key       = "isDeleted"
+    range_key       = "updated"
   }
 
   point_in_time_recovery {
     enabled = false
   }
 }
+
+resource "aws_dynamodb_table" "userDeletedFilesTale" {
+  name                        = "userDeletedFiles"
+  deletion_protection_enabled = false
+  hash_key                    = "userId"
+  #id                          = "userFiles"
+  range_key                   = "fileName"
+  read_capacity               = 20
+  write_capacity              = 20
+  stream_enabled              = false
+
+  attribute {
+    name = "userId"
+    type = "S"
+  }
+  attribute {
+    name = "updated"
+    type = "S"
+  }
+  attribute {
+    name = "fileName"
+    type = "S"
+  }
+
+  local_secondary_index {
+    name            = "updated-index"
+    projection_type = "ALL"
+    range_key       = "updated"
+  }
+
+  point_in_time_recovery {
+    enabled = false
+  }
+}
+
 
 
 resource "aws_dynamodb_table" "storagePlanTable" {
