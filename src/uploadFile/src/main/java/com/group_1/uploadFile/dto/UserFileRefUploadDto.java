@@ -1,7 +1,5 @@
 package com.group_1.uploadFile.dto;
 
-import lombok.Data;
-
 /**
  * com.group_1.uploadFile.dto
  * Created by NhatLinh - 19127652

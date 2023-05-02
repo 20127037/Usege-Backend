@@ -2,7 +2,8 @@ package com.group_1.uploadFile.service;
 
 import com.group_1.sharedDynamoDB.model.UserFile;
 import com.group_1.sharedDynamoDB.model.UserInfo;
-import com.group_1.sharedDynamoDB.repository.UserFileDbRepository;
+import com.group_1.sharedDynamoDB.repository.DynamoDbRepository;
+import com.group_1.sharedDynamoDB.repository.UserFileRepository;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
 import com.group_1.sharedS3.repository.FileRepository;
 import com.group_1.uploadFile.dto.UserFileRefUploadDto;
@@ -16,8 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.http.HttpClient;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * com.group_1.uploadFile.service
@@ -32,11 +33,11 @@ public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
 
-    private final UserFileDbRepository userFileDbRepository;
+    private final UserFileRepository userFileDbRepository;
     @Value("${amazon.aws.s3-bucket}")
     private String bucket;
 
-    public FileServiceImpl(FileRepository fileRepository, UserRepository userRepository, UserFileDbRepository userFileDbRepository) {
+    public FileServiceImpl(FileRepository fileRepository, UserRepository userRepository, UserFileRepository userFileDbRepository) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.userFileDbRepository = userFileDbRepository;
@@ -44,11 +45,11 @@ public class FileServiceImpl implements FileService {
 
     @SneakyThrows
     @Override
-    public String userUploadFile(String userId, UserFileUploadDto userFileDto, MultipartFile file) {
+    public UserFile userUploadFile(String userId, UserFileUploadDto userFileDto, MultipartFile file) {
         log.info(String.format("UserId ----> %s", userId));
         log.info(String.format("----> %s", userFileDto));
         byte[] fileBytes = file.getBytes();
-        String fileName = file.getOriginalFilename();
+        String fileName = UUID.randomUUID().toString();
         String contentType = file.getContentType();
         long fileSize = file.getSize() / 1024;
         String fileUri = String.format("http://localhost:4566/%s/%s/%s", bucket, userId, fileName);
@@ -76,8 +77,7 @@ public class FileServiceImpl implements FileService {
                 .date(userFileDto.getDate())
                 .description(userFileDto.getDescription())
                 .location(userFileDto.getLocation())
-                .originalUri(userFileDto.getUri())
-                .isDeleted(false)
+                //.isDeleted(false)
                 .isFavourite(false)
                 .build();
         userFileDbRepository.saveRecord(userFile);
@@ -90,12 +90,15 @@ public class FileServiceImpl implements FileService {
             u.setImgCount(u.getImgCount() + 1);
         });
         fileRepository.uploadFile(userId, fileName, contentType, fileBytes);
-        return fileUri;
+        return userFile;
     }
 
     @Override
-    public String userUploadRefFile(String userId, UserFileRefUploadDto refUploadDto) {
+    public UserFile userUploadRefFile(String userId, UserFileRefUploadDto refUploadDto) {
         //Create userFile record
+        UserFile file = userFileDbRepository.getRecordByKey(DynamoDbRepository.getKey(userId, refUploadDto.fileName()));
+        if (file != null)
+            return file;
         String now = LocalDateTime.now().toString();
         UserFile userFile = UserFile
                 .builder()
@@ -108,22 +111,16 @@ public class FileServiceImpl implements FileService {
                 .normalUri(refUploadDto.uri())
                 .date(now)
                 .description(refUploadDto.description())
-                .isDeleted(false)
+                //.isDeleted(false)
                 .isFavourite(false)
                 .build();
         userFileDbRepository.saveRecord(userFile);
-        log.info(String.format("USER FILE ----> %s", userFile.toString()));
         //Update user info
         userRepository.updateRecord(userId, u -> {
             // Increase imgCount
             u.setImgCount(u.getImgCount() + 1);
         });
-        return refUploadDto.uri();
-    }
-
-    @Override
-    public void userDeleteFile(String userId, String fileId) {
-
+        return userFile;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.group_1.uploadFile.controller;
 
+import com.group_1.sharedDynamoDB.model.UserFile;
 import com.group_1.uploadFile.dto.UserFileRefUploadDto;
 import com.group_1.uploadFile.dto.UserFileUploadDto;
 import com.group_1.uploadFile.service.FileService;
@@ -27,24 +28,24 @@ public class UploadFileController {
             MediaType.APPLICATION_JSON_VALUE,
             MediaType.MULTIPART_FORM_DATA_VALUE
     })
-    public ResponseEntity<String> uploadFiles(@PathVariable String id,
-                                              @RequestPart("info") UserFileUploadDto info,
-                                              @RequestPart("file") MultipartFile file)
+    public ResponseEntity<UserFile> uploadFiles(@PathVariable String id,
+                                                @RequestPart("info") UserFileUploadDto info,
+                                                @RequestPart("file") MultipartFile file)
     {
-        String url = fileService.userUploadFile(id, info, file);
-        if (url == null)
+        UserFile created = fileService.userUploadFile(id, info, file);
+        if (created == null)
             return ResponseEntity.badRequest().build();
-        return ResponseEntity.created(URI.create(url)).body(url);
+        return ResponseEntity.created(URI.create(created.getNormalUri())).body(created);
     }
 
 
     @PostMapping("ref/{id}")
-    public ResponseEntity<String> uploadRefFile(@PathVariable String id, @RequestBody UserFileRefUploadDto refUploadDto)
+    public ResponseEntity<UserFile> uploadRefFile(@PathVariable String id, @RequestBody UserFileRefUploadDto refUploadDto)
     {
-        String url = fileService.userUploadRefFile(id, refUploadDto);
-        if (url == null)
+        UserFile created = fileService.userUploadRefFile(id, refUploadDto);
+        if (created == null)
             return ResponseEntity.badRequest().build();
-        return ResponseEntity.created(URI.create(url)).body(url);
+        return ResponseEntity.created(URI.create(created.getNormalUri())).body(created);
     }
 
     @PostMapping
