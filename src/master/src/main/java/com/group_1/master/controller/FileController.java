@@ -1,16 +1,13 @@
 package com.group_1.master.controller;
 
-import com.group_1.master.dto.LoadFleRequestDto;
+import com.group_1.master.dto.PagingRequestDto;
 import com.group_1.master.service.FileService;
+import com.group_1.master.utils.RequestMapperUtils;
 import com.group_1.sharedDynamoDB.model.QueryResponse;
 import com.group_1.sharedDynamoDB.model.UserFile;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * com.group_1.master.controller
@@ -26,28 +23,29 @@ public class FileController {
 
     @GetMapping("{id}")
     public ResponseEntity<QueryResponse<UserFile>> getFiles(@PathVariable String id,
-                                                            @RequestParam("limit") int limit,
                                                             @RequestParam(value = "favourite", required = false) Boolean favourite,
-                                                            @RequestParam(value = "deleted", required = false) Boolean deleted,
-                                                            @RequestBody LoadFleRequestDto requestDto)
+                                                            @RequestBody PagingRequestDto requestDto)
     {
-        Map<String, AttributeValue> attributeValueMap = null;
-        if (requestDto.lastKey() != null)
-        {
-            attributeValueMap = new HashMap<>();
-            Map<String, AttributeValue> finalAttributeValueMap = attributeValueMap;
-            requestDto.lastKey().forEach((k, v) -> finalAttributeValueMap.put(k, AttributeValue.fromS(v)));
-        }
-        return ResponseEntity.ok(fileService.queryFiles(id, limit,
-                favourite, deleted,
-                attributeValueMap, requestDto.attributes()));
+        return ResponseEntity.ok(fileService.queryFiles(id, requestDto.limit(),
+                favourite, RequestMapperUtils.mapPagingKey(requestDto.lastKey()), requestDto.attributes()));
     }
 
-    @GetMapping("{id}/check")
-    public ResponseEntity<UserFile> getFile(@PathVariable String id,
-                                                  @RequestParam(value = "fileName", required = false) String fileName,
-                                                  @RequestParam(value = "uri", required = false) String uri)
+    @PutMapping("{id}")
+    public ResponseEntity<UserFile> updateFile(@PathVariable String id,
+                                           @RequestBody UserFile updated)
     {
-        return ResponseEntity.ok(fileService.getFile(id, fileName, uri));
+        return ResponseEntity.ok().body(fileService.updateFile(id, updated));
+    }
+
+    @GetMapping("{id}/{fileName}")
+    public ResponseEntity<UserFile> getFile(@PathVariable String id,
+                                            @PathVariable String fileName,
+                                            @RequestParam(value = "trash-include", required = false, defaultValue = "true") Boolean trash)
+    {
+        if (fileName != null)
+            return ResponseEntity.ok(fileService.getFileByName(id, fileName, trash));
+//        if (uri != null)
+//            return ResponseEntity.ok(fileService.getFileByOriginalUri(id, uri));
+        return ResponseEntity.badRequest().build();
     }
 }

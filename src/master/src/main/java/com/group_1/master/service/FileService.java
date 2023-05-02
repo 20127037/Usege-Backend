@@ -15,8 +15,9 @@ import java.util.Map;
 public interface FileService {
     QueryResponse<UserFile> queryFiles(String userId, int limit,
                                               Boolean isFavourite,
-                                              Boolean isDeleted,
                                               Map<String, AttributeValue> startKey,
                                               String[] attributes);
-    UserFile getFile(String userId, String fileName, String uri);
+    UserFile getFileByName(String userId, String fileName, boolean deletedInclude);
+    UserFile updateFile(String userId, UserFile update);
+//    UserFile deleteFile(String userId, String fileName);
 }

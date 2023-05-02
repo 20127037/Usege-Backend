@@ -3,15 +3,15 @@ package com.group_1.master.service;
 import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import com.group_1.sharedDynamoDB.model.QueryResponse;
 import com.group_1.sharedDynamoDB.model.UserFile;
-import com.group_1.sharedDynamoDB.repository.UserFileDbRepository;
+import com.group_1.sharedDynamoDB.repository.DynamoDbRepository;
+import com.group_1.sharedDynamoDB.repository.UserDeletedFileRepository;
+import com.group_1.sharedDynamoDB.repository.UserFileRepository;
+import com.group_1.sharedDynamoDB.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
-import software.amazon.awssdk.enhanced.dynamodb.Key;
-import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,46 +24,64 @@ import java.util.Map;
 @AllArgsConstructor
 public class FileServiceImpl implements FileService {
 
-    private final UserFileDbRepository userFileDbRepository;
-    private QueryResponse<UserFile> queryFileInternal(String userId,
-                                              Expression expression,
-                                              int limit,
-                                              Map<String, AttributeValue> startKey,
-                                              String[] attributes) {
-        QueryConditional conditional = QueryConditional.keyEqualTo(Key.builder().partitionValue(userId).build());
-        return userFileDbRepository.query(conditional, expression,
-                limit, startKey, false, attributes);
-    }
-
+    private final UserFileRepository userFileDbRepository;
+    private final UserDeletedFileRepository userDeletedRepository;
+    private final UserRepository userRepository;
 
     @Override
     public QueryResponse<UserFile> queryFiles(String userId, int limit,
-                                              Boolean isFavourite, Boolean isDeleted,
+                                              Boolean isFavourite,
                                               Map<String, AttributeValue> startKey, String[] attributes) {
-        Expression.Builder expressionBuilder = Expression.builder();
-        if (isDeleted != null)
-            expressionBuilder.putExpressionValue(UserFile.Fields.isDeleted, AttributeValue.fromBool(isDeleted));
+        Expression filterExpression = null;
         if (isFavourite != null)
-            expressionBuilder.putExpressionValue(UserFile.Fields.isFavourite, AttributeValue.fromBool(isFavourite));
-        return queryFileInternal(userId, expressionBuilder.build(), limit, startKey, attributes);
+        {
+            filterExpression = Expression.builder()
+                    .putExpressionValue(UserFile.Fields.isFavourite, AttributeValue.fromBool(isFavourite))
+                    .build();
+        }
+        return userFileDbRepository.query(
+                DynamoDbRepository.getQueryConditional(userId, null), filterExpression, UserFile.Indexes.UPDATED, limit, startKey, false, attributes);
     }
 
     @Override
-    public UserFile getFile(String userId, String fileName, String uri) {
-
-        Expression.Builder expressionBuilder = Expression.builder();
-        if (fileName != null)
-            expressionBuilder.putExpressionValue(UserFile.Fields.fileName, AttributeValue.fromS(fileName));
-        if (uri != null)
-            expressionBuilder.putExpressionValue(UserFile.Fields.originalUri, AttributeValue.fromS(uri));
-        QueryResponse<UserFile> response = queryFileInternal(userId, expressionBuilder.build(), 1, null, new String[]{
-                UserFile.Fields.userId
-        });
-        List<UserFile> userFile = response.getResponse();
-        if (userFile == null || userFile.isEmpty())
-            throw new NoSuchElementFoundException(fileName, "userFiles");
-        return userFile.get(0);
+    public UserFile getFileByName(String userId, String fileName, boolean deletedInclude) {
+        UserFile userFile = userFileDbRepository.getRecordByKey(DynamoDbRepository.getKey(userId, fileName));
+        if (userFile == null)
+        {
+            userFile = userDeletedRepository.getRecordByKey(DynamoDbRepository.getKey(userId, fileName));
+            if (userFile == null)
+                throw new NoSuchElementFoundException(fileName, "userFiles.indexes");
+        }
+        return userFile;
     }
+
+    @Override
+    public UserFile updateFile(String userId, UserFile update) {
+        return userFileDbRepository.updateRecord(DynamoDbRepository.getKey(userId, update.getFileName()), f -> {
+            if (update.getTags() != null)
+                f.setTags(update.getTags());
+            if (update.getDescription() != null)
+                f.setDescription(update.getDescription());
+            if (update.getDate() != null)
+                f.setDate(update.getDate());
+            if (update.getIsFavourite() != null)
+                f.setIsFavourite(update.getIsFavourite());
+            if (update.getLocation() != null)
+                f.setLocation(update.getLocation());
+        });
+    }
+//    @Override
+//    public UserFile getFileByOriginalUri(String userId, String uri) {
+//        QueryResponse<UserFile> response = queryFileInternal(userId, null,
+//                new AbstractMap.SimpleEntry<>(UserFile.Indexes.URI, uri),
+//                1, null, new String[]{
+//                        UserFile.Fields.userId
+//                });
+//        List<UserFile> userFile = response.getResponse();
+//        if (userFile == null || userFile.isEmpty())
+//            throw new NoSuchElementFoundException(uri, "userFiles.uri");
+//        return userFile.get(0);
+//    }
 
 //    public void addUserFileDummy()
 //    {
