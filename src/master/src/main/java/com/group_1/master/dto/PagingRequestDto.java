@@ -9,5 +9,5 @@ import java.util.Map;
  * Description: ...
  */
 
-public record LoadFleRequestDto(String[] attributes, Map<String, String> lastKey) {
+public record PagingRequestDto(int limit, String[] attributes, Map<String, String> lastKey) {
 }
