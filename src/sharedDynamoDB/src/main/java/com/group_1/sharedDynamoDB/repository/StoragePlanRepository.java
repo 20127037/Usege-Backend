@@ -3,6 +3,7 @@ package com.group_1.sharedDynamoDB.repository;
 import com.group_1.sharedDynamoDB.model.StoragePlan;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 /**
@@ -20,11 +21,11 @@ public class StoragePlanRepository extends DynamoDbRepository<StoragePlan> {
 
     public StoragePlan getBasicPlan()
     {
-        return super.getRecordById("Basic");
+        return super.getRecordByKey(getKey("Basic"));
     }
 
-    public Iterable<StoragePlan> scanAll()
-    {
-        return table.scan().items();
+    @Override
+    public Key getKeyFromItem(StoragePlan item) {
+        return getKey(item.getName());
     }
 }

@@ -3,6 +3,7 @@ package com.group_1.sharedDynamoDB.repository;
 import com.group_1.sharedDynamoDB.model.UserInfo;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 /**
@@ -16,5 +17,10 @@ public class UserRepository extends DynamoDbRepository<UserInfo> {
 
     public UserRepository(DynamoDbEnhancedClient enhancedClient) {
         super(enhancedClient.table("userInfo", TableSchema.fromBean(UserInfo.class)));
+    }
+
+    @Override
+    public Key getKeyFromItem(UserInfo item) {
+        return getKey(item.getUserId());
     }
 }

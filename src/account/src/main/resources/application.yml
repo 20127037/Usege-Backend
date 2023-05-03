@@ -16,7 +16,6 @@ amazon:
     cognito:
       pool-id: ap-southeast-1_Fm8xzxQHY
       client-id: 7b4h8r9h9f8il2qr9bii4npmo9
-
 eureka:
   client:
     service-url:

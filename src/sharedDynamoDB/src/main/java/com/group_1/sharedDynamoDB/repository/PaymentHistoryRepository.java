@@ -3,6 +3,7 @@ package com.group_1.sharedDynamoDB.repository;
 import com.group_1.sharedDynamoDB.model.PaymentHistory;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 /**
@@ -16,6 +17,11 @@ public class PaymentHistoryRepository extends DynamoDbRepository<PaymentHistory>
 
     public PaymentHistoryRepository(DynamoDbEnhancedClient client) {
         super(client.table("paymentHistories", TableSchema.fromBean(PaymentHistory.class)));
+    }
+
+    @Override
+    public Key getKeyFromItem(PaymentHistory item) {
+        return getKey(item.getUserId(), item.getPlanName());
     }
 }
 

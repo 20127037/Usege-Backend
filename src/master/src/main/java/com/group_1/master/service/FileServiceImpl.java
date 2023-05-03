@@ -40,7 +40,7 @@ public class FileServiceImpl implements FileService {
                     .build();
         }
         return userFileDbRepository.query(
-                DynamoDbRepository.getQueryConditional(userId, null), filterExpression, UserFile.Indexes.UPDATED, limit, startKey, false, attributes);
+                DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId)), filterExpression, UserFile.Indexes.UPDATED, limit, startKey, false, attributes);
     }
 
     @Override

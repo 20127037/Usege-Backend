@@ -1,6 +1,7 @@
 provider "aws" {
   region = local.region
-  profile = "mobile_group_1_dev"
+  access_key = "dump_key"
+  secret_key = "dump_key"
   s3_use_path_style = true
   skip_credentials_validation = true
   skip_metadata_api_check     = true

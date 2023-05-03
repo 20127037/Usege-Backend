@@ -16,5 +16,4 @@ import java.io.IOException;
 public interface FileService {
     UserFile userUploadFile(String userId, UserFileUploadDto userFileDto, MultipartFile file);
     UserFile userUploadRefFile(String userId, UserFileRefUploadDto refUploadDto);
-    void testUploadFile(MultipartFile file);
 }

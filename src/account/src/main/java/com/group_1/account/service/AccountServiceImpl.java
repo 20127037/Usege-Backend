@@ -1,6 +1,7 @@
 package com.group_1.account.service;
 
 import com.group_1.account.dto.AccountRequestDto;
+import com.group_1.sharedDynamoDB.model.PaymentHistory;
 import com.group_1.sharedDynamoDB.model.StoragePlan;
 import com.group_1.sharedDynamoDB.model.UserInfo;
 import com.group_1.sharedDynamoDB.repository.PaymentHistoryRepository;
@@ -8,6 +9,7 @@ import com.group_1.sharedDynamoDB.repository.StoragePlanRepository;
 import com.group_1.sharedDynamoDB.repository.UserFileRepository;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
 import com.group_1.utilities.MemoryUtilities;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
@@ -21,29 +23,29 @@ import java.time.LocalDateTime;
  * Date 3/25/2023 - 2:28 PM
  * Description: ...
  */
+@Slf4j
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    @Value("${amazon.aws.cognito.client-id}")
-    private String cognitoClientId;
-    @Value("${amazon.aws.cognito.pool-id}")
-    private String cognitoPoolId;
-
+    private final String cognitoClientId;
+    private final String cognitoPoolId;
     private final StoragePlanRepository storagePlanRepository;
-    private final CognitoIdentityProviderClient cognitoIdentityProviderClient;
     private final PaymentHistoryRepository paymentHistoryRepository;
-    private final UserFileRepository userFileDbRepository;
+    private final CognitoIdentityProviderClient cognitoIdentityProviderClient;
     private final UserRepository userRepository;
-
 
     public AccountServiceImpl(CognitoIdentityProviderClient cognitoIdentityProviderClient,
                               StoragePlanRepository storagePlanRepository,
-                              PaymentHistoryRepository paymentHistoryRepository, UserFileRepository userFileDbRepository, UserRepository userRepository) {
+                              PaymentHistoryRepository paymentHistoryRepository,
+                              UserRepository userRepository,
+                              @Value("${amazon.aws.cognito.client-id}") String cognitoClientId,
+                              @Value("${amazon.aws.cognito.pool-id}") String cognitoPoolId) {
         this.cognitoIdentityProviderClient = cognitoIdentityProviderClient;
         this.storagePlanRepository = storagePlanRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
-        this.userFileDbRepository = userFileDbRepository;
         this.userRepository = userRepository;
+        this.cognitoClientId = cognitoClientId;
+        this.cognitoPoolId = cognitoPoolId;
     }
 
     public UserInfo createAccount(AccountRequestDto createAccountRequestDto)
@@ -73,6 +75,10 @@ public class AccountServiceImpl implements AccountService {
                 .planOrder(basicPlan.getOrder())
                 .purchasedPlanDate(now.toString())
                 .build();
+        paymentHistoryRepository.saveRecord(PaymentHistory.builder()
+                        .userId(response.userSub())
+                        .planName("Basic")
+                .build());
         userRepository.saveRecord(created);
         return created;
     }
@@ -119,13 +125,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void removeAccount(String username) {
-        AdminGetUserResponse user = cognitoIdentityProviderClient.adminGetUser(b -> b.userPoolId(cognitoPoolId).username(username));
-        if (user == null)
-            return;
-        cognitoIdentityProviderClient.adminDisableUser(b -> b.userPoolId(cognitoPoolId).username(user.username()));
-        cognitoIdentityProviderClient.adminDeleteUser(b -> b.userPoolId(cognitoPoolId).username(user.username()));
-        userRepository.deleteRecordById(user.username());
-        paymentHistoryRepository.deleteRecordById(user.username());
-        userFileDbRepository.deleteRecordById(user.username());
+        try
+        {
+            AdminGetUserResponse user = cognitoIdentityProviderClient.adminGetUser(b -> b.userPoolId(cognitoPoolId).username(username));
+            cognitoIdentityProviderClient.adminDisableUser(b -> b.userPoolId(cognitoPoolId).username(user.username()));
+            cognitoIdentityProviderClient.adminDeleteUser(b -> b.userPoolId(cognitoPoolId).username(user.username()));
+        }
+        catch (Exception e)
+        {
+            log.error(e.getMessage());
+        }
+//          userRepository.deleteRecordById(user.username());
+//        paymentHistoryRepository.deleteRecordById(user.username());
+//        userFileDbRepository.deleteRecordById(user.username());
     }
 }

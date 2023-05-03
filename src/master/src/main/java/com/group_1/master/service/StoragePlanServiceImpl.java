@@ -4,6 +4,7 @@ import com.group_1.master.dto.StoragePlanResponseDto;
 import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import com.group_1.sharedDynamoDB.model.StoragePlan;
 import com.group_1.sharedDynamoDB.model.UserInfo;
+import com.group_1.sharedDynamoDB.repository.DynamoDbRepository;
 import com.group_1.sharedDynamoDB.repository.StoragePlanRepository;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,7 @@ public class StoragePlanServiceImpl implements StoragePlanService {
     private final UserRepository userRepository;
     @Override
     public List<StoragePlanResponseDto> getAllPackages(String userId) {
-        UserInfo userInfo = userRepository.getRecordById(userId);
+        UserInfo userInfo = userRepository.getRecordByKey(DynamoDbRepository.getKey(userId));
         if (userInfo == null)
             throw new NoSuchElementFoundException(userId, "userInfo");
         List<StoragePlanResponseDto> result = new ArrayList<>();

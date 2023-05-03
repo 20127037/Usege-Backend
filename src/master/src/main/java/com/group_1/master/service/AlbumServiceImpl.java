@@ -34,7 +34,7 @@ public class AlbumServiceImpl implements AlbumService {
         UserAlbum album = userAlbumRepository.getRecordByKey(DynamoDbRepository.getKey(userId, albumName));
         if (album != null)
             return album;
-        userRepository.updateRecord(userId, s -> s.setAlbumCount(s.getAlbumCount() + 1));
+        userRepository.updateRecord(DynamoDbRepository.getKey(userId), s -> s.setAlbumCount(s.getAlbumCount() + 1));
         return userAlbumRepository.saveRecord(UserAlbum.builder()
                 .userId(userId)
                 .name(albumName)
@@ -45,13 +45,13 @@ public class AlbumServiceImpl implements AlbumService {
 
     @Override
     public UserAlbum deleteAlbum(String userId, String albumName) {
-        Key albumKey = Key.builder().partitionValue(userId).sortValue(albumName).build();
+        Key albumKey = DynamoDbRepository.getKey(userId, albumName);
         UserAlbum album = userAlbumRepository.getRecordByKey(albumKey, true);
         if (album == null)
             throw new NoSuchElementFoundException(albumName, userId);
         QueryResponse<UserFileInAlbum> albumQueryResponse = userFilesInAlbumRepository
                 .query(
-                        DynamoDbRepository.getQueryConditional(userId, albumName),
+                        DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, albumName)),
                         null,
                         UserFileInAlbum.Indexes.ALBUM_NAME,
                         (int)album.getImgCount().longValue(),
@@ -60,13 +60,13 @@ public class AlbumServiceImpl implements AlbumService {
                         UserFileInAlbum.Fields.updated);
         for (UserFileInAlbum userFileInAlbum : albumQueryResponse.getResponse())
             userFilesInAlbumRepository.deleteRecordByKey(DynamoDbRepository.getKey(userId, userFileInAlbum.getUpdated()));
-        userRepository.updateRecord(userId, s -> s.setAlbumCount(s.getAlbumCount() - 1));
+        userRepository.updateRecord(DynamoDbRepository.getKey(userId), s -> s.setAlbumCount(s.getAlbumCount() - 1));
         return userAlbumRepository.deleteRecordByKey(albumKey);
     }
 
     @Override
     public List<UserFileInAlbum> addImagesToAlbum(String userId, String albumName, String... fileNames) {
-        Key albumKey = Key.builder().partitionValue(userId).sortValue(albumName).build();
+        Key albumKey = DynamoDbRepository.getKey(userId, albumName);
         UserAlbum album = userAlbumRepository.getRecordByKey(albumKey, true);
         //If the album does not exist -> try to create a new one
         if (album == null)
@@ -79,7 +79,7 @@ public class AlbumServiceImpl implements AlbumService {
         for (String fileName : fileNames)
         {
             UserFileInAlbum userFileInAlbum = userFilesInAlbumRepository.queryOne(
-                    DynamoDbRepository.getQueryConditional(userId, fileName),
+                    DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, fileName)),
                     Expression.builder().putExpressionValue(UserFileInAlbum.Fields.albumName, AttributeValue.fromS(albumName)).build(),
                     UserFileInAlbum.Indexes.FILE_NAME_INDEX,
                     UserFileInAlbum.Fields.updated, UserFileInAlbum.Fields.albumName);
@@ -96,7 +96,7 @@ public class AlbumServiceImpl implements AlbumService {
             now = now.plusNanos(1);
         }
         if (!resultSet.isEmpty())
-            userAlbumRepository.updateRecord(Key.builder().partitionValue(userId).sortValue(albumName).build(),
+            userAlbumRepository.updateRecord(DynamoDbRepository.getKey(userId, albumName),
                     u -> u.setImgCount(u.getImgCount() + resultSet.size()));
         return resultSet;
     }
@@ -109,7 +109,7 @@ public class AlbumServiceImpl implements AlbumService {
         for (String fileName : fileNames)
         {
             UserFileInAlbum userFileInAlbum = userFilesInAlbumRepository.queryOne(
-                    DynamoDbRepository.getQueryConditional(userId, fileName),
+                    DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, fileName)),
                     Expression.builder().putExpressionValue(UserFileInAlbum.Fields.albumName, AttributeValue.fromS(albumName)).build(),
                     UserFileInAlbum.Indexes.FILE_NAME_INDEX,
                     UserFileInAlbum.Fields.updated, UserFileInAlbum.Fields.albumName);
@@ -117,11 +117,11 @@ public class AlbumServiceImpl implements AlbumService {
             if (userFileInAlbum == null)
                 continue;
             UserFileInAlbum deleted = userFilesInAlbumRepository.deleteRecordByKey(
-                    Key.builder().partitionValue(userId).sortValue(userFileInAlbum.getUpdated()).build());
+                    DynamoDbRepository.getKey(userId, userFileInAlbum.getUpdated()));
             resultSet.add(deleted);
         }
         if (!resultSet.isEmpty())
-            userAlbumRepository.updateRecord(Key.builder().partitionValue(userId).sortValue(albumName).build(),
+            userAlbumRepository.updateRecord(DynamoDbRepository.getKey(userId, albumName),
                     u -> u.setImgCount(u.getImgCount() - resultSet.size()));
         return resultSet;
     }
@@ -136,7 +136,7 @@ public class AlbumServiceImpl implements AlbumService {
     public QueryFilesInAlbumResponse queryImages(String userId, String albumName, int limit, Map<String, AttributeValue> startKey) {
         QueryResponse<UserFileInAlbum> albumQueryResponse = userFilesInAlbumRepository
                 .query(
-                        DynamoDbRepository.getQueryConditional(userId, albumName),
+                        DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, albumName)),
                         null,
                         UserFileInAlbum.Indexes.ALBUM_NAME,
                         limit,

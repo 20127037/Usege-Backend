@@ -1,6 +1,5 @@
 package com.group_1.master.service;
 
-import com.group_1.master.dto.QueryFilesInAlbumResponse;
 import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import com.group_1.sharedDynamoDB.model.QueryResponse;
 import com.group_1.sharedDynamoDB.model.UserFile;
@@ -33,7 +32,7 @@ public class TrashBinServiceImpl implements TrashBinService {
 
     @Override
     public List<UserFile> createDeletedFiles(String userId, String... fileNames) {
-        UserInfo userInfo = userRepository.getRecordById(userId);
+        UserInfo userInfo = userRepository.getRecordByKey(DynamoDbRepository.getKey(userId));
         if (userInfo == null)
             throw new NoSuchElementFoundException(userId, "users");
 
@@ -48,7 +47,7 @@ public class TrashBinServiceImpl implements TrashBinService {
 
             //Delete image from albums
             QueryResponse<UserFileInAlbum> userFileInAlbumQueryResponse = userFilesInAlbumRepository.query(
-                    DynamoDbRepository.getQueryConditional(userId, fileName),
+                    DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, fileName)),
                     null,
                     UserFileInAlbum.Indexes.FILE_NAME_INDEX,
                     userInfo.getAlbumCount().intValue(),
@@ -74,7 +73,7 @@ public class TrashBinServiceImpl implements TrashBinService {
         }
         for (Map.Entry<String, Set<String>> albumAndImages : mapAlbumsToImages.entrySet())
             albumService.deleteImagesFromAlbum(userId, albumAndImages.getKey(), albumAndImages.getValue().toArray(String[]::new));
-        userRepository.updateRecord(userId, i -> {
+        userRepository.updateRecord(DynamoDbRepository.getKey(userId), i -> {
             i.setImgCount(i.getImgCount() - resultSet.size());
             i.setImgCount(i.getDeletedImgCount() + resultSet.size());
         });
@@ -85,8 +84,14 @@ public class TrashBinServiceImpl implements TrashBinService {
     public List<UserFile> clearDeletedFiles(String userId, String... fileNames) {
         List<UserFile> resultSet = new ArrayList<>();
         for (String fileName : fileNames)
-            resultSet.add(userDeletedFileRepository.deleteRecordByKey(DynamoDbRepository.getKey(userId, fileName)));
-        userRepository.updateRecord(userId, i -> i.setDeletedImgCount(i.getDeletedImgCount() - resultSet.size()));
+        {
+            UserFile deleted = userDeletedFileRepository.deleteRecordByKey(DynamoDbRepository.getKey(userId, fileName));
+            //Remove file from s3
+            resultSet.add(deleted);
+        }
+
+        userRepository.updateRecord(DynamoDbRepository.getKey(userId), i
+                -> i.setDeletedImgCount(i.getDeletedImgCount() - resultSet.size()));
         return resultSet;
     }
 
@@ -122,7 +127,7 @@ public class TrashBinServiceImpl implements TrashBinService {
         }
         for (Map.Entry<String, Set<String>> albumAndImages : mapAlbumsToImages.entrySet())
             albumService.addImagesToAlbum(userId, albumAndImages.getKey(), albumAndImages.getValue().toArray(String[]::new));
-        userRepository.updateRecord(userId, i -> {
+        userRepository.updateRecord(DynamoDbRepository.getKey(userId), i -> {
             i.setImgCount(i.getImgCount() + resultSet.size());
             i.setImgCount(i.getDeletedImgCount() - resultSet.size());
         });
@@ -131,11 +136,11 @@ public class TrashBinServiceImpl implements TrashBinService {
 
     @Override
     public List<UserFile> restoreAll(String userId) {
-        UserInfo userInfo = userRepository.getRecordById(userId);
+        UserInfo userInfo = userRepository.getRecordByKey(DynamoDbRepository.getKey(userId));
         if (userInfo == null)
             throw new NoSuchElementFoundException(userId, "users");
         QueryResponse<UserFile> userDelFileResponse = userDeletedFileRepository.query(
-                DynamoDbRepository.getQueryConditional(userId, null),
+                DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId)),
                 null,
                 userInfo.getDeletedImgCount().intValue(),
                 null,
@@ -151,7 +156,7 @@ public class TrashBinServiceImpl implements TrashBinService {
     @Override
     public QueryResponse<UserFile> queryImages(String userId, int limit, Map<String, AttributeValue> startKey) {
         QueryResponse<UserFile> userFileQueryResponse = userDeletedFileRepository
-                .query(DynamoDbRepository.getQueryConditional(userId, null),
+                .query(DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId)),
                         null,
                         limit,
                         startKey,

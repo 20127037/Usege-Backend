@@ -6,6 +6,7 @@ import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import com.group_1.sharedDynamoDB.model.PaymentHistory;
 import com.group_1.sharedDynamoDB.model.StoragePlan;
 import com.group_1.sharedDynamoDB.model.UserInfo;
+import com.group_1.sharedDynamoDB.repository.DynamoDbRepository;
 import com.group_1.sharedDynamoDB.repository.PaymentHistoryRepository;
 import com.group_1.sharedDynamoDB.repository.StoragePlanRepository;
 import com.group_1.sharedDynamoDB.repository.UserRepository;
@@ -52,17 +53,17 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public boolean payment(String userId, String plan, String cardNumber, String cvv, String expiredDate) {
 
-        StoragePlan storagePlan = storagePlanRepository.getRecordById(plan);
+        StoragePlan storagePlan = storagePlanRepository.getRecordByKey(DynamoDbRepository.getKey(plan));
         if (storagePlan == null)
             throw new NoSuchElementFoundException(plan, "storagePlans");
         if (!checkCard(cardNumber, cvv, expiredDate))
             throw new InvalidCardException(cardNumber);
-        UserInfo userInfo = userRepository.getRecordById(userId);
-        StoragePlan currentPlan = storagePlanRepository.getRecordById(userInfo.getPlan());
+        UserInfo userInfo = userRepository.getRecordByKey(DynamoDbRepository.getKey(userId));
+        StoragePlan currentPlan = storagePlanRepository.getRecordByKey(DynamoDbRepository.getKey(userInfo.getPlan()));
         if (currentPlan.getOrder() >= storagePlan.getOrder())
             throw new InvalidPlanException(storagePlan.getName());
         String now = LocalDateTime.now().toString();
-        userRepository.updateRecord(userId, i -> {
+        userRepository.updateRecord(DynamoDbRepository.getKey(userId), i -> {
             i.setPlan(storagePlan.getName());
             i.setPlanOrder(storagePlan.getOrder());
             i.setMaxSpace(MemoryUtilities.gbToKb(storagePlan.getMaximumSpaceInGB()));

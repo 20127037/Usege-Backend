@@ -3,7 +3,6 @@ package com.group_1.sharedDynamoDB.repository;
 import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import com.group_1.sharedDynamoDB.model.QueryResponse;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
@@ -24,53 +23,76 @@ import java.util.function.Consumer;
  * Description: ...
  */
 @AllArgsConstructor
-public  class DynamoDbRepository<TValue> {
+public abstract class DynamoDbRepository<TValue> {
     protected final DynamoDbTable<TValue> table;
+    public abstract Key getKeyFromItem(TValue item);
+
     public TValue saveRecord(TValue value) {
         PutItemEnhancedResponse<TValue> response = table.putItemWithResponse(b -> b.item(value));
 
         return response.attributes();
     }
-
-    public TValue getRecordByKeyAndAttributes(Key key, boolean consistent)
+    public void clearTable()
     {
-        return table
-                .getItem(builder -> builder
-                        .key(key)
-                        .consistentRead(consistent));
+        for (TValue value : scanAll())
+            deleteRecordByKey(getKeyFromItem(value));
     }
 
-    public static QueryConditional getQueryConditional(String partition, String sort)
+    public Iterable<TValue> scanAll()
     {
-        return QueryConditional.keyEqualTo(getKey(partition, sort));
+        return table.scan().items();
     }
+
+    public static QueryConditional getQueryConditional(Key key)
+    {
+        return QueryConditional.keyEqualTo(key);
+    }
+
     public static Key getKey(String partition, String sort)
     {
         return Key.builder().partitionValue(partition).sortValue(sort).build();
     }
-
-
-    @SneakyThrows
-    public TValue getRecordById(String id) {
-        return getRecordById(id, false);
+    public static Key getKey(String partition)
+    {
+        return Key.builder().partitionValue(partition).build();
     }
-    @SneakyThrows
-    public TValue getRecordById(String id, boolean consistent) {
-        Key key = Key.builder().partitionValue(id).build();
-        return getRecordByKey(key, consistent);
-    }
+
+//    @SneakyThrows
+//    public TValue getRecordById(String id) {
+//        return getRecordById(id, false);
+//    }
+//public TValue getRecordByKeyAndAttributes(Key key, boolean consistent)
+//{
+//    return table
+//            .getItem(builder -> builder
+//                    .key(key)
+//                    .consistentRead(consistent));
+//}
+//    @SneakyThrows
+//    public TValue getRecordById(String id, boolean consistent) {
+//        Key key = Key.builder().partitionValue(id).build();
+//        return getRecordByKey(key, consistent);
+//    }
+//    public TValue deleteRecordById(String id) {
+//        Key key = Key.builder().partitionValue(id).build();
+//        return table.deleteItem(b -> b.key(key));
+//    }
+//    public TValue updateRecord(String id, Consumer<TValue> updateCallback)
+//    {
+//        TValue item = getRecordById(id, true);
+//        if (item == null)
+//            throw new NoSuchElementFoundException(id, table.tableName());
+//        updateCallback.accept(item);
+//        return updateRecord(item);
+//    }
+
     public TValue getRecordByKey(Key key, boolean consistent)
     {
         return table.getItem(builder -> builder.key(key).consistentRead(consistent));
     }
     public TValue getRecordByKey(Key key)
     {
-        return getRecordByKey(key, false);
-    }
-
-    public TValue deleteRecordById(String id) {
-        Key key = Key.builder().partitionValue(id).build();
-        return table.deleteItem(b -> b.key(key));
+        return getRecordByKey(key, true);
     }
 
     public TValue deleteRecordByKey(Key key) {
@@ -85,14 +107,7 @@ public  class DynamoDbRepository<TValue> {
         updateCallback.accept(item);
         return updateRecord(item);
     }
-    public TValue updateRecord(String id, Consumer<TValue> updateCallback)
-    {
-        TValue item = getRecordById(id, true);
-        if (item == null)
-            throw new NoSuchElementFoundException(id, table.tableName());
-        updateCallback.accept(item);
-        return updateRecord(item);
-    }
+
 
     private TValue updateRecord(TValue item)
     {

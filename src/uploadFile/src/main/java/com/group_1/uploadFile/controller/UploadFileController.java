@@ -51,6 +51,6 @@ public class UploadFileController {
     @PostMapping
     public void testUploadFile(@RequestParam("file") MultipartFile file)
     {
-        fileService.testUploadFile(file);
+//        fileService.testUploadFile(file);
     }
 }

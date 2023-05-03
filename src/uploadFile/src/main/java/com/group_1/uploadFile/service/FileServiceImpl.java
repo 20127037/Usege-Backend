@@ -34,34 +34,32 @@ public class FileServiceImpl implements FileService {
     private final UserRepository userRepository;
 
     private final UserFileRepository userFileDbRepository;
-    @Value("${amazon.aws.s3-bucket}")
-    private String bucket;
+    private final String bucket;
 
-    public FileServiceImpl(FileRepository fileRepository, UserRepository userRepository, UserFileRepository userFileDbRepository) {
+    public FileServiceImpl(FileRepository fileRepository,
+                           UserRepository userRepository,
+                           UserFileRepository userFileDbRepository,
+                           @Value("${amazon.aws.s3-bucket}") String bucket) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.userFileDbRepository = userFileDbRepository;
+        this.bucket = bucket;
     }
 
     @SneakyThrows
     @Override
     public UserFile userUploadFile(String userId, UserFileUploadDto userFileDto, MultipartFile file) {
-        log.info(String.format("UserId ----> %s", userId));
-        log.info(String.format("----> %s", userFileDto));
         byte[] fileBytes = file.getBytes();
         String fileName = UUID.randomUUID().toString();
         String contentType = file.getContentType();
         long fileSize = file.getSize() / 1024;
-        String fileUri = String.format("http://localhost:4566/%s/%s/%s", bucket, userId, fileName);
 
-        log.info(String.format("FILE-NAME ----> %s", fileName));
-        log.info(String.format("CONTENT-TYPE ----> %s", contentType));
-        log.info(String.format("FILE-SIZE ----> %s", fileSize));
-
-        UserInfo userInfo = userRepository.getRecordById(userId);
+        UserInfo userInfo = userRepository.getRecordByKey(DynamoDbRepository.getKey(userId));
         //Check file size
         if (userInfo.getUsedSpace() + fileSize >= userInfo.getMaxSpace())
             throw new ExceedSpaceException(userInfo.getMaxSpace(), userInfo.getUsedSpace(), fileSize);
+
+        String fileUri = fileRepository.uploadFile(userId, fileName, contentType, fileBytes);
 
         //Create userFile record
         UserFile userFile = UserFile
@@ -83,13 +81,20 @@ public class FileServiceImpl implements FileService {
         userFileDbRepository.saveRecord(userFile);
         log.info(String.format("USER FILE ----> %s", userFile.toString()));
         //Update user info
-        userRepository.updateRecord(userId, u -> {
+        UserInfo updated = userRepository.updateRecord(DynamoDbRepository.getKey(userId), u -> {
             // Increase used space
             u.setUsedSpace(u.getUsedSpace() + fileSize);
             // Increase imgCount
             u.setImgCount(u.getImgCount() + 1);
         });
-        fileRepository.uploadFile(userId, fileName, contentType, fileBytes);
+        log.info("User {} ({}) uploaded an image {} ({} - {} kb) (used {}/{})",
+                updated.getUserId(),
+                updated.getEmail(),
+                userFile.getFileName(),
+                userFile.getNormalUri(),
+                userFile.getSizeInKb(),
+                updated.getUsedSpace(),
+                updated.getMaxSpace());
         return userFile;
     }
 
@@ -116,20 +121,17 @@ public class FileServiceImpl implements FileService {
                 .build();
         userFileDbRepository.saveRecord(userFile);
         //Update user info
-        userRepository.updateRecord(userId, u -> {
+        UserInfo updated = userRepository.updateRecord(DynamoDbRepository.getKey(userId), u -> {
             // Increase imgCount
             u.setImgCount(u.getImgCount() + 1);
         });
+        log.info("User {} ({}) uploaded an reference image {} ({}) (used {}/{})",
+                updated.getUserId(),
+                updated.getEmail(),
+                userFile.getFileName(),
+                userFile.getNormalUri(),
+                updated.getUsedSpace(),
+                updated.getMaxSpace());
         return userFile;
-    }
-
-    @Override
-    public void testUploadFile(MultipartFile file) {
-//        fileRepository.createFolder("9fb8b578-3fd0-4794-bff0-557659afbcfc");
-        try {
-            fileRepository.uploadFile("9fb8b578-3fd0-4794-bff0-557659afbcfc", file.getName(), file.getContentType(), file.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
