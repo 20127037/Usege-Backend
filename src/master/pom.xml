@@ -41,29 +41,14 @@
         </dependency>
         <dependency>
             <groupId>com.group_1</groupId>
-            <artifactId>account</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.group_1</groupId>
             <artifactId>sharedDynamoDB</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.group_1</groupId>
-            <artifactId>uploadFile</artifactId>
-            <scope>test</scope>
+            <artifactId>sharedOAuth2</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>

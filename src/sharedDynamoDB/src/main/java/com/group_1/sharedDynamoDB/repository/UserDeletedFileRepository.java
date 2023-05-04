@@ -1,6 +1,7 @@
 package com.group_1.sharedDynamoDB.repository;
 
 import com.group_1.sharedDynamoDB.model.UserFile;
+import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -14,6 +15,7 @@ import java.util.Map;
  * Date 5/2/2023 - 2:13 PM
  * Description: ...
  */
+@Repository
 public class UserDeletedFileRepository extends DynamoDbRepository<UserFile> {
     public UserDeletedFileRepository(DynamoDbEnhancedClient client) {
         super(client.table("userDeletedFiles", TableSchema.fromBean(UserFile.class)));

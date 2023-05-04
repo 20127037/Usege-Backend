@@ -16,7 +16,12 @@ services:
         - localstack_data:/tmp/localstack/data
       networks:
         localstack:
-
+    rabbitmq:
+      image: rabbitmq:3.11.15-management-alpine
+      container_name: rabbitmq
+      ports:
+        - "5672:5672"
+        - "15672:15672"
     zipkin:
       image: openzipkin/zipkin
       container_name: zipkin

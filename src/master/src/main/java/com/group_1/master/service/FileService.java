@@ -18,6 +18,5 @@ public interface FileService {
                                               Map<String, AttributeValue> startKey,
                                               String[] attributes);
     UserFile getFileByName(String userId, String fileName, boolean deletedInclude);
-    UserFile updateFile(String userId, UserFile update);
 //    UserFile deleteFile(String userId, String fileName);
 }

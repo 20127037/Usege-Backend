@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.*;
  * Date 4/21/2023 - 4:23 PM
  * Description: ...
  */
-@RestController("file")
+@RestController
+@RequestMapping("file")
 @AllArgsConstructor
 public class FileController {
 
@@ -30,12 +31,6 @@ public class FileController {
                 favourite, RequestMapperUtils.mapPagingKey(requestDto.lastKey()), requestDto.attributes()));
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<UserFile> updateFile(@PathVariable String id,
-                                           @RequestBody UserFile updated)
-    {
-        return ResponseEntity.ok().body(fileService.updateFile(id, updated));
-    }
 
     @GetMapping("{id}/{fileName}")
     public ResponseEntity<UserFile> getFile(@PathVariable String id,

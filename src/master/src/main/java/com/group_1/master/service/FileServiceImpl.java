@@ -56,19 +56,4 @@ public class FileServiceImpl implements FileService {
         return userFile;
     }
 
-    @Override
-    public UserFile updateFile(String userId, UserFile update) {
-        return userFileDbRepository.updateRecord(DynamoDbRepository.getKey(userId, update.getFileName()), f -> {
-            if (update.getTags() != null)
-                f.setTags(update.getTags());
-            if (update.getDescription() != null)
-                f.setDescription(update.getDescription());
-            if (update.getDate() != null)
-                f.setDate(update.getDate());
-            if (update.getIsFavourite() != null)
-                f.setIsFavourite(update.getIsFavourite());
-            if (update.getLocation() != null)
-                f.setLocation(update.getLocation());
-        });
-    }
 }

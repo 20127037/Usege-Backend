@@ -16,11 +16,6 @@ import java.util.Map;
  * Description: ...
  */
 public interface TrashBinService {
-    List<UserFile> createDeletedFiles(String userId, @NonNull String... fileNames);
-    List<UserFile> createDeletedFilesFromAllFiles(String userId);
-    List<UserFile> clearDeletedFiles(String userId, String... fileNames);
-    List<UserFile> clearAll(String userId);
-    List<UserFile> restoreFiles(String userId, String... fileNames);
-    List<UserFile> restoreAll(String userId);
     QueryResponse<UserFile> queryImages(String userId, int limit, Map<String, AttributeValue> startKey);
+    UserFile getImage(String userId, String fileName);
 }

@@ -25,7 +25,8 @@ import java.util.Map;
  * Description: ...
  */
 
-@RestController("user")
+@RestController
+@RequestMapping("user")
 @AllArgsConstructor
 public class UserController {
 
