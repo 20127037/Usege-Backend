@@ -33,6 +33,12 @@ public class TrashBinController {
         return ResponseEntity.created(URI.create(request.getRequestURI())).body(trashBinService.createDeletedFiles(id, fileNames));
     }
 
+    @PostMapping("{id}/all")
+    public ResponseEntity<List<UserFile>> deleteFile(HttpServletRequest request,
+                                                     @PathVariable String id) {
+        return ResponseEntity.created(URI.create(request.getRequestURI())).body(trashBinService.createDeletedFilesFromAllFiles(id));
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity<List<UserFile>> clearDeletedFiles(@PathVariable String id,
                                                             @RequestParam("file-names") String[] fileNames)
