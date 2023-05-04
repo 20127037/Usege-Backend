@@ -86,8 +86,7 @@ public class FileServiceTest {
     private final FileServiceImpl fileService = new FileServiceImpl(
             fileRepository,
             userRepository,
-            userFileRepository,
-            null
+            userFileRepository
     );
     private final String TEST_EMAIL = "honhatlinh@gmail.com";
     private final String TEST_PW = "Quynhshin123!";
