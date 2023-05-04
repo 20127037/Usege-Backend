@@ -1,5 +1,6 @@
 package com.group_1.album;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication(scanBasePackages = {"com.group_1.album", "com.group_1.sharedDynamoDB",
         "com.group_1.sharedAws", "com.group_1.sharedOAuth2", "com.group_1.amqp"})
+@OpenAPIDefinition
 public class AlbumApplication {
     public static void main(String[] args)
     {

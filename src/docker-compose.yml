@@ -29,7 +29,6 @@ services:
         - "9411:9411"
       networks:
         - spring
-
     eureka-server:
       image: usege/eureka:latest
       container_name: eureka-server
@@ -41,7 +40,6 @@ services:
         - zipkin
       networks:
         - spring
-
     apigw:
       image: usege/apigw:latest
       container_name: apigw
@@ -54,7 +52,23 @@ services:
         - zipkin
       networks:
         - spring
-
+    master:
+      image: usege/master:latest
+      container_name: master
+      ports:
+        - "8080:8080"
+      networks:
+        - spring
+        - localstack
+      depends_on:
+        - eureka-server
+        - localstack
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      volumes:
+        - type: bind
+          source: ${USERPROFILE}\.aws
+          target: /root/.aws
     account:
       image: usege/account:latest
       container_name: account
@@ -67,7 +81,6 @@ services:
         - eureka-server
         - localstack
       environment:
-#        - COMPOSE_CONVERT_WINDOWS_PATHS=1
         - SPRING_PROFILES_ACTIVE=docker
       volumes:
         - type: bind
@@ -92,11 +105,11 @@ services:
           source: ${USERPROFILE}\.aws
           target: /root/.aws
 
-    master:
-      image: usege/master:latest
-      container_name: master
+    file:
+      image: usege/file:latest
+      container_name: file
       ports:
-        - "8080:8080"
+        - "8083:8083"
       networks:
         - spring
         - localstack
@@ -119,6 +132,43 @@ services:
         - spring
         - localstack
       depends_on:
+        - eureka-server
+        - localstack
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      volumes:
+        - type: bind
+          source: ${USERPROFILE}\.aws
+          target: /root/.aws
+
+    album:
+      image: usege/album:latest
+      container_name: album
+      ports:
+        - "8085:8085"
+      networks:
+        - spring
+        - localstack
+      depends_on:
+        - rabbitmq
+        - eureka-server
+        - localstack
+      environment:
+        - SPRING_PROFILES_ACTIVE=docker
+      volumes:
+        - type: bind
+          source: ${USERPROFILE}\.aws
+          target: /root/.aws
+    trash:
+      image: usege/trash:latest
+      container_name: trash
+      ports:
+        - "8086:8086"
+      networks:
+        - spring
+        - localstack
+      depends_on:
+        - rabbitmq
         - eureka-server
         - localstack
       environment:

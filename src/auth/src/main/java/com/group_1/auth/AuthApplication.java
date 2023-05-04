@@ -1,5 +1,6 @@
 package com.group_1.auth;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Description: ...
  */
 @SpringBootApplication(scanBasePackages = {"com.group_1.auth", "com.group_1.sharedCognito", "com.group_1.sharedAws"})
+@OpenAPIDefinition
 public class AuthApplication {
 
     public static void main(String[] args)

@@ -3,6 +3,8 @@ package com.group_1.album.controller;
 import com.group_1.album.service.AlbumService;
 import com.group_1.sharedDynamoDB.model.UserAlbum;
 import com.group_1.sharedDynamoDB.model.UserFileInAlbum;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,23 +20,27 @@ import java.util.List;
  * Description: ...
  */
 @RestController
+@Tag(name = "Album", description = "Create/delete album, add/remove images to/from an album")
 @AllArgsConstructor
 public class AlbumController {
 
     private final AlbumService albumService;
 
     @PostMapping("{id}/{name}")
+    @Operation(summary = "Create a new album")
     public ResponseEntity<UserAlbum> createAlbum(HttpServletRequest request, @PathVariable String id, @PathVariable String name) {
         return ResponseEntity.created(URI.create(request.getRequestURI())).body(albumService.createAlbum(id, name));
     }
 
     @DeleteMapping("{id}/{name}")
+    @Operation(summary = "Delete an album")
     public ResponseEntity<UserAlbum> deleteAlbum(@PathVariable String id, @PathVariable String name)
     {
         return ResponseEntity.ok().body(albumService.deleteAlbum(id, name));
     }
 
     @PostMapping("{id}/{name}/images")
+    @Operation(summary = "Add a list of user images to an album")
     public ResponseEntity<List<UserFileInAlbum>> addToAlbum(HttpServletRequest request,
                                                 @PathVariable String id,
                                                  @PathVariable String name,
@@ -46,6 +52,7 @@ public class AlbumController {
     }
 
     @DeleteMapping("{id}/{name}/images")
+    @Operation(summary = "Delete a list of user images from an album")
     public ResponseEntity<List<UserFileInAlbum>> deleteFromAlbum(@PathVariable String id,
                                                  @PathVariable String name,
                                                  @RequestParam("file-names") String[] fileNames)
@@ -56,6 +63,7 @@ public class AlbumController {
     }
 
     @PutMapping("{id}/{to}/images")
+    @Operation(summary = "Move a list of user images from an album to another one")
     public ResponseEntity<List<UserFileInAlbum>> moveFromAlbumToAlbum(@PathVariable String id,
                                                      @PathVariable String to,
                                                      @RequestParam("from") String from,

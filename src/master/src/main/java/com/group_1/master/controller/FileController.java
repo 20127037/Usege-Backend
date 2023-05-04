@@ -5,6 +5,8 @@ import com.group_1.master.service.FileService;
 import com.group_1.master.utils.RequestMapperUtils;
 import com.group_1.sharedDynamoDB.model.QueryResponse;
 import com.group_1.sharedDynamoDB.model.UserFile;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +20,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("file")
 @AllArgsConstructor
+@Tag(name = "Get files", description = "Get user files information")
 public class FileController {
 
     private final FileService fileService;
 
     @GetMapping("{id}")
+    @Operation(summary = "Get user files (paging)")
     public ResponseEntity<QueryResponse<UserFile>> getFiles(@PathVariable String id,
                                                             @RequestParam(value = "favourite", required = false) Boolean favourite,
                                                             @RequestBody PagingRequestDto requestDto)
@@ -33,6 +37,7 @@ public class FileController {
 
 
     @GetMapping("{id}/{fileName}")
+    @Operation(summary = "Get a user file from its name")
     public ResponseEntity<UserFile> getFile(@PathVariable String id,
                                             @PathVariable String fileName,
                                             @RequestParam(value = "trash-include", required = false, defaultValue = "true") Boolean trash)

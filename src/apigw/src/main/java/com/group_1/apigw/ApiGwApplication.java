@@ -1,6 +1,7 @@
 package com.group_1.apigw;
 
 import com.netflix.discovery.EurekaNamespace;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Description: ...
  */
 @SpringBootApplication
+@OpenAPIDefinition
 public class ApiGwApplication {
     public static void main(String[] args)
     {

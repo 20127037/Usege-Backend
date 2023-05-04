@@ -13,7 +13,6 @@
         <module>auth</module>
         <module>eureka</module>
         <module>apigw</module>
-        <module>file</module>
         <module>sharedDynamoDB</module>
         <module>sharedS3</module>
         <module>sharedCognito</module>
@@ -23,6 +22,7 @@
         <module>sharedOAuth2</module>
         <module>trash</module>
         <module>amqp</module>
+        <module>file</module>
     </modules>
     <name>usege_backend</name>
 

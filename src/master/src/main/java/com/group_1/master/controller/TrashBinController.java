@@ -5,6 +5,8 @@ import com.group_1.master.service.TrashBinService;
 import com.group_1.master.utils.RequestMapperUtils;
 import com.group_1.sharedDynamoDB.model.QueryResponse;
 import com.group_1.sharedDynamoDB.model.UserFile;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,16 +20,19 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("trash")
 @AllArgsConstructor
+@Tag(name = "Get trash bin", description = "Get user trash bin information")
 public class TrashBinController {
 
     private final TrashBinService trashBinService;
     @GetMapping("{id}")
+    @Operation(summary = "Get user files from the bin (paging)")
     public ResponseEntity<QueryResponse<UserFile>> getTrashFiles(@PathVariable String id,
                                                               @RequestBody PagingRequestDto requestDto)
     {
         return ResponseEntity.ok().body(trashBinService.queryImages(id, requestDto.limit(), RequestMapperUtils.mapPagingKey(requestDto.lastKey())));
     }
     @GetMapping("{id}/{fileName}")
+    @Operation(summary = "Get an user file from the bin by its name")
     public ResponseEntity<UserFile> getTrashFile(@PathVariable String id, @PathVariable String fileName)
     {
         return ResponseEntity.ok().body(trashBinService.getImage(id, fileName));

@@ -1,5 +1,6 @@
 package com.group_1.master;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -9,7 +10,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Date 3/21/2023 - 6:08 PM
  * Description: Main entry for the master service
  */
-@SpringBootApplication(scanBasePackages = {"com.group_1.master", "com.group_1.sharedDynamoDB", "com.group_1.sharedAws", "com.group_1.sharedOAuth2"})
+@SpringBootApplication(scanBasePackages = {"com.group_1.master", "com.group_1.sharedDynamoDB",
+        "com.group_1.sharedAws", "com.group_1.sharedOAuth2"})
+@OpenAPIDefinition
 public class MasterApplication {
     public static void main(String[] args)
     {
