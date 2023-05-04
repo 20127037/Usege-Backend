@@ -37,7 +37,6 @@ public class AlbumController {
     }
     @GetMapping("{id}")
     public ResponseEntity<QueryResponse<UserAlbum>> getAlbums(@PathVariable String id,
-                                                   @PathVariable String name,
                                                    @RequestBody PagingRequestDto requestDto)
     {
         return ResponseEntity.ok().body(albumService.queryAlbums(id, requestDto.limit(), RequestMapperUtils.mapPagingKey(requestDto.lastKey())));
