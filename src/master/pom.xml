@@ -41,6 +41,12 @@
         </dependency>
         <dependency>
             <groupId>com.group_1</groupId>
+            <artifactId>account</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.group_1</groupId>
             <artifactId>sharedDynamoDB</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>compile</scope>

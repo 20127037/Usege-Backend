@@ -6,6 +6,9 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Repository
 public class UserAlbumRepository extends DynamoDbRepository<UserAlbum> {
     public UserAlbumRepository(DynamoDbEnhancedClient client) {
@@ -15,5 +18,13 @@ public class UserAlbumRepository extends DynamoDbRepository<UserAlbum> {
     @Override
     public Key getKeyFromItem(UserAlbum item) {
         return getKey(item.getUserId(), item.getName());
+    }
+
+    @Override
+    public Map<String, String> getLastEvaluatedKeyFromItem(UserAlbum item) {
+        HashMap<String, String> key = new HashMap<>();
+        key.put(UserAlbum.Fields.userId, item.getUserId());
+        key.put(UserAlbum.Fields.name, item.getName());
+        return key;
     }
 }

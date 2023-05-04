@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.LocalDateTime;
@@ -64,6 +65,7 @@ public class AlbumServiceImpl implements AlbumService {
         return userAlbumRepository.deleteRecordByKey(albumKey);
     }
 
+
     @Override
     public List<UserFileInAlbum> addImagesToAlbum(String userId, String albumName, String... fileNames) {
         Key albumKey = DynamoDbRepository.getKey(userId, albumName);
@@ -75,12 +77,20 @@ public class AlbumServiceImpl implements AlbumService {
         List<UserFileInAlbum> resultSet = new ArrayList<>();
         if (fileNames == null || fileNames.length == 0)
             return resultSet;
+        final Expression userFilesInAlbumWithAlbumNameEqual = Expression.builder()
+                .expression("#a = :name")
+                .putExpressionName("#a", UserFileInAlbum.Fields.albumName)
+                .putExpressionValue(":name", AttributeValue.fromS(albumName))
+                .build();
         LocalDateTime now = LocalDateTime.now();
         for (String fileName : fileNames)
         {
+            UserFile userFile = userFileRepository.getRecordByKey(DynamoDbRepository.getKey(userId, fileName));
+            if (userFile == null)
+                continue;
             UserFileInAlbum userFileInAlbum = userFilesInAlbumRepository.queryOne(
                     DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, fileName)),
-                    Expression.builder().putExpressionValue(UserFileInAlbum.Fields.albumName, AttributeValue.fromS(albumName)).build(),
+                    userFilesInAlbumWithAlbumNameEqual,
                     UserFileInAlbum.Indexes.FILE_NAME_INDEX,
                     UserFileInAlbum.Fields.updated, UserFileInAlbum.Fields.albumName);
             //If the image is already inside the album -> ignore it
@@ -106,11 +116,16 @@ public class AlbumServiceImpl implements AlbumService {
         List<UserFileInAlbum> resultSet = new ArrayList<>();
         if (fileNames == null || fileNames.length == 0)
             return resultSet;
+        final Expression userFilesInAlbumWithAlbumNameEqual = Expression.builder()
+                .expression("#a = :name")
+                .putExpressionName("#a", UserFileInAlbum.Fields.albumName)
+                .putExpressionValue(":name", AttributeValue.fromS(albumName))
+                .build();
         for (String fileName : fileNames)
         {
             UserFileInAlbum userFileInAlbum = userFilesInAlbumRepository.queryOne(
                     DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, fileName)),
-                    Expression.builder().putExpressionValue(UserFileInAlbum.Fields.albumName, AttributeValue.fromS(albumName)).build(),
+                    userFilesInAlbumWithAlbumNameEqual,
                     UserFileInAlbum.Indexes.FILE_NAME_INDEX,
                     UserFileInAlbum.Fields.updated, UserFileInAlbum.Fields.albumName);
             //Image not on the album
@@ -133,16 +148,25 @@ public class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
+    public QueryResponse<UserAlbum> queryAlbums(String userId, int limit, Map<String, AttributeValue> lastEvaluatedKey) {
+        return userAlbumRepository.query(
+                DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId)),
+                null,
+                limit,
+                lastEvaluatedKey,
+                false
+        );
+    }
+
+    @Override
     public QueryFilesInAlbumResponse queryImages(String userId, String albumName, int limit, Map<String, AttributeValue> startKey) {
         QueryResponse<UserFileInAlbum> albumQueryResponse = userFilesInAlbumRepository
-                .query(
-                        DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, albumName)),
+                .query(DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, albumName)),
                         null,
                         UserFileInAlbum.Indexes.ALBUM_NAME,
                         limit,
                         startKey,
-                        false,
-                        UserFileInAlbum.Fields.fileName);
+                        false);
         List<UserFile> resultSet = new ArrayList<>();
         for (UserFileInAlbum userFileInAlbum : albumQueryResponse.getResponse())
         {

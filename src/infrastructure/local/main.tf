@@ -88,7 +88,7 @@ resource "aws_dynamodb_table" "userFilesInAlbumTable" {
     type = "S"
   }
   local_secondary_index {
-    name            = "album-index"
+    name            = "album-name-index"
     projection_type = "ALL"
     range_key       = "albumName"
   }

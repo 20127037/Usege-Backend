@@ -10,9 +10,11 @@ import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.model.*;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.ReturnValue;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -26,11 +28,15 @@ import java.util.function.Consumer;
 public abstract class DynamoDbRepository<TValue> {
     protected final DynamoDbTable<TValue> table;
     public abstract Key getKeyFromItem(TValue item);
+    public Map<String, String> getLastEvaluatedKeyFromItem(TValue item)
+    {
+        return null;
+    }
 
     public TValue saveRecord(TValue value) {
-        PutItemEnhancedResponse<TValue> response = table.putItemWithResponse(b -> b.item(value));
-
-        return response.attributes();
+        PutItemEnhancedResponse<TValue> response = table.putItemWithResponse(b
+                -> b.item(value));
+        return value;
     }
     public void clearTable()
     {
@@ -124,7 +130,7 @@ public abstract class DynamoDbRepository<TValue> {
         DynamoDbIndex<TValue> indexTable = table.index(index);
         SdkIterable<Page<TValue>> response = indexTable.query(getQueryBuilder(queryConditional, filterExpression,
                 limit, exclusiveStartKey, forward, attributes));
-        return proceedResponse(response.iterator());
+        return proceedResponse(limit, response.iterator());
     }
 
     public TValue queryOne(QueryConditional queryConditional,
@@ -138,9 +144,9 @@ public abstract class DynamoDbRepository<TValue> {
         DynamoDbIndex<TValue> indexTable = table.index(index);
         SdkIterable<Page<TValue>> response = indexTable.query(getQueryBuilder(queryConditional, filterExpression,
                 1, null, false, attributes));
-        Iterator<Page<TValue>> iterator = response.iterator();
-        if (iterator.hasNext())
-            return iterator.next().items().get(0);
+        List<TValue> items = response.iterator().next().items();
+        if (items != null && !items.isEmpty())
+            return items.get(0);
         return null;
     }
 
@@ -152,7 +158,7 @@ public abstract class DynamoDbRepository<TValue> {
                                        String... attributes) {
         PageIterable<TValue> response = table.query(getQueryBuilder(queryConditional, filterExpression,
                 limit, exclusiveStartKey, forward, attributes));
-        return proceedResponse(response.iterator());
+        return proceedResponse(limit, response.iterator());
     }
 
     private static Consumer<QueryEnhancedRequest.Builder> getQueryBuilder(QueryConditional queryConditional,
@@ -164,28 +170,31 @@ public abstract class DynamoDbRepository<TValue> {
         return b -> {
             b
                     .queryConditional(queryConditional)
-                    .filterExpression(filterExpression)
+                    //.filterExpression(filterExpression)
                     .limit(limit)
                     .exclusiveStartKey(exclusiveStartKey);
             if (attributes != null && attributes.length > 0)
                 b.attributesToProject(attributes);
+            if (filterExpression != null)
+                b.filterExpression(filterExpression);
             b.scanIndexForward(forward);
         };
     }
 
-    private QueryResponse<TValue> proceedResponse(Iterator<Page<TValue>> response)
+    private QueryResponse<TValue> proceedResponse(int limit, Iterator<Page<TValue>> response)
     {
         Page<TValue> next = response.next();
-        Map<String, AttributeValue> lastKey = next.lastEvaluatedKey();
-        Map<String, String> lastKeyStrings = null;
-        if (lastKey != null) {
-            lastKeyStrings = new HashMap<>();
-            Map<String, String> finalLastKeyStrings = lastKeyStrings;
-            lastKey.forEach((k, v) -> finalLastKeyStrings.put(k, v.s()));
+        List<TValue> items = next.items();
+        Map<String, String> lastKey = null;
+        if (items != null
+                && !items.isEmpty()
+                && items.size() >= limit)
+        {
+            lastKey = getLastEvaluatedKeyFromItem(items.get(limit - 1));
         }
         return QueryResponse.<TValue>builder()
                 .response(next.items())
-                .nextEvaluatedKey(lastKeyStrings)
+                .nextEvaluatedKey(lastKey)
                 .build();
     }
 }

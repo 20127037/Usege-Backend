@@ -7,9 +7,12 @@ import com.group_1.sharedDynamoDB.model.UserFileInAlbum;
 import com.group_1.sharedDynamoDB.model.UserInfo;
 import com.group_1.sharedDynamoDB.repository.*;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,53 +34,75 @@ public class TrashBinServiceImpl implements TrashBinService {
     private static final int DEFAULT_CLEAR_DAYS = 7;
 
     @Override
-    public List<UserFile> createDeletedFiles(String userId, String... fileNames) {
+    public List<UserFile> createDeletedFiles(String userId, @NonNull String... fileNames) {
         UserInfo userInfo = userRepository.getRecordByKey(DynamoDbRepository.getKey(userId));
         if (userInfo == null)
             throw new NoSuchElementFoundException(userId, "users");
-
+        boolean hasAnyAlbum = userInfo.getAlbumCount() > 0;
         Map<String, Set<String>> mapAlbumsToImages = new HashMap<>();
         List<UserFile> resultSet = new ArrayList<>();
+
+        LocalDateTime now = LocalDateTime.now();
         for (String fileName : fileNames)
         {
             UserFile deleted = userFileRepository.deleteRecordByKey(DynamoDbRepository.getKey(userId, fileName));
             if (deleted == null)
                 continue;
             deleted.setRemainingDays(DEFAULT_CLEAR_DAYS);
-
+            deleted.setUpdated(now.toString());
             //Delete image from albums
-            QueryResponse<UserFileInAlbum> userFileInAlbumQueryResponse = userFilesInAlbumRepository.query(
-                    DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, fileName)),
-                    null,
-                    UserFileInAlbum.Indexes.FILE_NAME_INDEX,
-                    userInfo.getAlbumCount().intValue(),
-                    null,
-                    false,
-                    UserFileInAlbum.Fields.albumName
-            );
-            List<UserFileInAlbum> fileInAlbums = userFileInAlbumQueryResponse.getResponse();
-            if (fileInAlbums != null && !fileInAlbums.isEmpty())
+            if (hasAnyAlbum)
             {
-                for (UserFileInAlbum album : fileInAlbums)
+                QueryResponse<UserFileInAlbum> userFileInAlbumQueryResponse = userFilesInAlbumRepository.query(
+                        DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, fileName)),
+                        null,
+                        UserFileInAlbum.Indexes.FILE_NAME_INDEX,
+                        userInfo.getAlbumCount().intValue(),
+                        null,
+                        false);
+                List<UserFileInAlbum> fileInAlbums = userFileInAlbumQueryResponse.getResponse();
+                if (fileInAlbums != null && !fileInAlbums.isEmpty())
                 {
-                    Set<String> images = mapAlbumsToImages.get(album.getAlbumName());
-                    if (images == null)
-                        images = new HashSet<>();
-                    mapAlbumsToImages.putIfAbsent(album.getAlbumName(), images);
-                    images.add(fileName);
+                    for (UserFileInAlbum album : fileInAlbums)
+                    {
+                        Set<String> images = mapAlbumsToImages.get(album.getAlbumName());
+                        if (images == null)
+                            images = new HashSet<>();
+                        mapAlbumsToImages.putIfAbsent(album.getAlbumName(), images);
+                        images.add(fileName);
+                    }
+                    deleted.setPreviousAlbums(fileInAlbums.stream().map(UserFileInAlbum::getAlbumName).collect(Collectors.toSet()));
                 }
-                deleted.setPreviousAlbums(fileInAlbums.stream().map(UserFileInAlbum::getAlbumName).collect(Collectors.toSet()));
             }
-
             resultSet.add(userDeletedFileRepository.saveRecord(deleted));
+            now = now.plusNanos(1L);
         }
-        for (Map.Entry<String, Set<String>> albumAndImages : mapAlbumsToImages.entrySet())
-            albumService.deleteImagesFromAlbum(userId, albumAndImages.getKey(), albumAndImages.getValue().toArray(String[]::new));
+        if (hasAnyAlbum && !mapAlbumsToImages.isEmpty())
+        {
+            for (Map.Entry<String, Set<String>> albumAndImages : mapAlbumsToImages.entrySet())
+                albumService.deleteImagesFromAlbum(userId, albumAndImages.getKey(), albumAndImages.getValue().toArray(String[]::new));
+        }
         userRepository.updateRecord(DynamoDbRepository.getKey(userId), i -> {
             i.setImgCount(i.getImgCount() - resultSet.size());
-            i.setImgCount(i.getDeletedImgCount() + resultSet.size());
+            i.setDeletedImgCount(i.getDeletedImgCount() + resultSet.size());
         });
         return resultSet;
+    }
+
+    @Override
+    public List<UserFile> createDeletedFilesFromAllFiles(String userId) {
+        UserInfo userInfo = userRepository.getRecordByKey(DynamoDbRepository.getKey(userId));
+        QueryResponse<UserFile> userFileQueryResponse = userFileRepository.query(
+                DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId)),
+                null,
+                userInfo.getImgCount().intValue(),
+                null,
+                false,
+                UserFile.Fields.fileName);
+        List<UserFile> userFiles = userFileQueryResponse.getResponse();
+        if (userFiles == null || userFiles.isEmpty())
+            throw new NoSuchElementFoundException(userId, "files");
+        return createDeletedFiles(userId, userFiles.stream().map(UserFile::getFileName).toArray(String[]::new));
     }
 
     @Override
@@ -97,20 +122,35 @@ public class TrashBinServiceImpl implements TrashBinService {
 
     @Override
     public List<UserFile> clearAll(String userId) {
-        return null;
+        UserInfo userInfo = userRepository.getRecordByKey(DynamoDbRepository.getKey(userId));
+        if (userInfo == null || userInfo.getDeletedImgCount() == 0)
+            throw new NoSuchElementFoundException(userId, "users");
+        QueryResponse<UserFile> userFileQueryResponse = userDeletedFileRepository.query(
+                DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId)),
+                null,
+                userInfo.getDeletedImgCount().intValue(),
+                null,
+                false,
+                UserFile.Fields.fileName);
+        List<UserFile> userFiles = userFileQueryResponse.getResponse();
+        if (userFiles == null || userFiles.isEmpty())
+            throw new NoSuchElementFoundException(userId, "files");
+        return clearDeletedFiles(userId, userFiles.stream().map(UserFile::getFileName).toArray(String[]::new));
     }
 
     @Override
     public List<UserFile> restoreFiles(String userId, String... fileNames) {
         List<UserFile> resultSet = new ArrayList<>();
         Map<String, Set<String>> mapAlbumsToImages = new HashMap<>();
+        LocalDateTime now = LocalDateTime.now();
         for (String fileName : fileNames)
         {
-            UserFile deleted = userDeletedFileRepository.getRecordByKey(DynamoDbRepository.getKey(userId, fileName));
+            UserFile deleted = userDeletedFileRepository.deleteRecordByKey(DynamoDbRepository.getKey(userId, fileName));
             if (deleted == null)
                 continue;
             Set<String> previousAlbums = deleted.getPreviousAlbums();
             deleted.setRemainingDays(null);
+            deleted.setUpdated(now.toString());
             deleted.setPreviousAlbums(null);
             resultSet.add(userFileRepository.saveRecord(deleted));
             if (previousAlbums != null)
@@ -124,12 +164,13 @@ public class TrashBinServiceImpl implements TrashBinService {
                     images.add(fileName);
                 }
             }
+            now = now.plusNanos(1L);
         }
         for (Map.Entry<String, Set<String>> albumAndImages : mapAlbumsToImages.entrySet())
             albumService.addImagesToAlbum(userId, albumAndImages.getKey(), albumAndImages.getValue().toArray(String[]::new));
         userRepository.updateRecord(DynamoDbRepository.getKey(userId), i -> {
             i.setImgCount(i.getImgCount() + resultSet.size());
-            i.setImgCount(i.getDeletedImgCount() - resultSet.size());
+            i.setDeletedImgCount(i.getDeletedImgCount() - resultSet.size());
         });
         return resultSet;
     }
@@ -137,15 +178,14 @@ public class TrashBinServiceImpl implements TrashBinService {
     @Override
     public List<UserFile> restoreAll(String userId) {
         UserInfo userInfo = userRepository.getRecordByKey(DynamoDbRepository.getKey(userId));
-        if (userInfo == null)
+        if (userInfo == null || userInfo.getDeletedImgCount() == 0)
             throw new NoSuchElementFoundException(userId, "users");
         QueryResponse<UserFile> userDelFileResponse = userDeletedFileRepository.query(
                 DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId)),
                 null,
                 userInfo.getDeletedImgCount().intValue(),
                 null,
-                false,
-                UserFile.Fields.fileName
+                false
         );
         List<UserFile> userDelFiles = userDelFileResponse.getResponse();
         if (userDelFiles == null || userDelFiles.isEmpty())
@@ -155,25 +195,12 @@ public class TrashBinServiceImpl implements TrashBinService {
 
     @Override
     public QueryResponse<UserFile> queryImages(String userId, int limit, Map<String, AttributeValue> startKey) {
-        QueryResponse<UserFile> userFileQueryResponse = userDeletedFileRepository
+        return userDeletedFileRepository
                 .query(DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId)),
                         null,
+                        UserFile.Indexes.UPDATED,
                         limit,
                         startKey,
-                        false,
-                        UserFileInAlbum.Fields.fileName);
-        List<UserFile> resultSet = new ArrayList<>();
-        for (UserFile userFileInAlbum : userFileQueryResponse.getResponse())
-        {
-            UserFile userFile = userFileRepository.getRecordByKey(DynamoDbRepository.getKey(userId, userFileInAlbum.getFileName()));
-            if (userFile == null)
-                continue;
-            resultSet.add(userFile);
-        }
-        return QueryResponse.<UserFile>builder()
-                .prevEvaluatedKey(null)
-                .nextEvaluatedKey(userFileQueryResponse.getNextEvaluatedKey())
-                .response(resultSet)
-                .build();
+                        false);
     }
 }

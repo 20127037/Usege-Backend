@@ -34,16 +34,13 @@ public class FileServiceImpl implements FileService {
     private final UserRepository userRepository;
 
     private final UserFileRepository userFileDbRepository;
-    private final String bucket;
 
     public FileServiceImpl(FileRepository fileRepository,
                            UserRepository userRepository,
-                           UserFileRepository userFileDbRepository,
-                           @Value("${amazon.aws.s3-bucket}") String bucket) {
+                           UserFileRepository userFileDbRepository) {
         this.fileRepository = fileRepository;
         this.userRepository = userRepository;
         this.userFileDbRepository = userFileDbRepository;
-        this.bucket = bucket;
     }
 
     @SneakyThrows

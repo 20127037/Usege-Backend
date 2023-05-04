@@ -26,7 +26,6 @@ public class FileServiceImpl implements FileService {
 
     private final UserFileRepository userFileDbRepository;
     private final UserDeletedFileRepository userDeletedRepository;
-    private final UserRepository userRepository;
 
     @Override
     public QueryResponse<UserFile> queryFiles(String userId, int limit,
@@ -36,7 +35,9 @@ public class FileServiceImpl implements FileService {
         if (isFavourite != null)
         {
             filterExpression = Expression.builder()
-                    .putExpressionValue(UserFile.Fields.isFavourite, AttributeValue.fromBool(isFavourite))
+                    .expression("#f = :fav")
+                    .putExpressionName("#f", UserFile.Fields.isFavourite)
+                    .putExpressionValue(":fav", AttributeValue.fromBool(isFavourite))
                     .build();
         }
         return userFileDbRepository.query(
@@ -70,28 +71,4 @@ public class FileServiceImpl implements FileService {
                 f.setLocation(update.getLocation());
         });
     }
-//    @Override
-//    public UserFile getFileByOriginalUri(String userId, String uri) {
-//        QueryResponse<UserFile> response = queryFileInternal(userId, null,
-//                new AbstractMap.SimpleEntry<>(UserFile.Indexes.URI, uri),
-//                1, null, new String[]{
-//                        UserFile.Fields.userId
-//                });
-//        List<UserFile> userFile = response.getResponse();
-//        if (userFile == null || userFile.isEmpty())
-//            throw new NoSuchElementFoundException(uri, "userFiles.uri");
-//        return userFile.get(0);
-//    }
-
-//    public void addUserFileDummy()
-//    {
-//        for (int i = 0; i < 10; i++)
-//        {
-//            userFileDbRepository.saveRecord(UserFile.builder()
-//                    .userId("link")
-//                    .fileId(UUID.randomUUID().toString())
-//                    .contentType("image")
-//                    .build());
-//        }
-//    }
 }
