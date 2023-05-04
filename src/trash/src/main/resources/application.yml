@@ -8,7 +8,10 @@ spring:
   zipkin:
     base-url: http://localhost:9411
   rabbitmq:
-    addresses: http://localhost:5672
+    port: 5672
+    host: "localhost"
+    template:
+      exchange: internal.exchange
   security:
     oauth2:
       resourceserver:
@@ -20,6 +23,17 @@ amazon:
   aws:
     region: ap-southeast-1
     profileName: mobile_group_1_dev
+
+rabbitmq:
+  exchanges:
+    internal:
+  queue:
+    album-add:
+      name: album.queue.add
+      key: internal.album.add
+    album-del:
+      name: album.queue.del
+      key: internal.album.del
 
 eureka:
   client:

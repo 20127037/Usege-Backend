@@ -1,4 +1,4 @@
-package com.group_1.amqp.producers;
+package com.group_1.trash.producers;
 
 
 import lombok.AllArgsConstructor;

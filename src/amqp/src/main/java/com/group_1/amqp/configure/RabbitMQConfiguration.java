@@ -20,25 +20,22 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 public class RabbitMQConfiguration {
 
-    private final ConnectionFactory connectionFactory;
-
-    @Bean
-    public AmqpTemplate getAmqpTemplate()
-    {
-        RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(getMessageConverter());
-        return template;
-    }
-
-    @Bean
-    public SimpleRabbitListenerContainerFactory getSimpleRabbitListenerContainerFactory()
-    {
-        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-        factory.setConnectionFactory(connectionFactory);
-        factory.setMessageConverter(getMessageConverter());
-        return factory;
-    }
-
+//    @Bean
+//    public AmqpTemplate amqpTemplate()
+//    {
+//        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+//        template.setMessageConverter(getMessageConverter());
+//        return template;
+//    }
+//
+//    @Bean
+//    public SimpleRabbitListenerContainerFactory getSimpleRabbitListenerContainerFactory()
+//    {
+//        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+//        factory.setConnectionFactory(connectionFactory);
+//        factory.setMessageConverter(getMessageConverter());
+//        return factory;
+//    }
     @Bean
     public MessageConverter getMessageConverter()
     {

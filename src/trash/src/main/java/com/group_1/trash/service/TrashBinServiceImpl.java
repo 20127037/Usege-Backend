@@ -1,7 +1,7 @@
 package com.group_1.trash.service;
 
 import com.group_1.amqp.dto.ImagesInAlbumRequest;
-import com.group_1.amqp.producers.RabbitMQMessageProducer;
+import com.group_1.trash.producers.RabbitMQMessageProducer;
 import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import com.group_1.sharedDynamoDB.model.QueryResponse;
 import com.group_1.sharedDynamoDB.model.UserFile;
