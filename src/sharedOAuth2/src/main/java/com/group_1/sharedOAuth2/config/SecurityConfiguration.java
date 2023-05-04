@@ -18,7 +18,9 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf()
                 .and()
-                .authorizeRequests().anyRequest().authenticated()
+                .authorizeRequests()
+                .antMatchers("/v3/api-docs/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer().jwt();
         return http.build();
