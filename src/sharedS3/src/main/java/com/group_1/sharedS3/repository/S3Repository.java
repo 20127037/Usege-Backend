@@ -59,7 +59,7 @@ public class S3Repository implements FileRepository {
                 .key(key)
                 .contentType(contentType), RequestBody.fromBytes(content));
         if (response.sdkHttpResponse().isSuccessful())
-            return response.toString();
-        return s3Client.utilities().getUrl(b -> b.bucket(bucket).key(key)).toExternalForm();
+            return s3Client.utilities().getUrl(b -> b.bucket(bucket).key(key)).toExternalForm();
+        return null;
     }
 }
