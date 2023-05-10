@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /**
  * com.group_1.master.controller
  * Created by NhatLinh - 19127652
@@ -29,10 +31,12 @@ public class FileController {
     @Operation(summary = "Get user files (paging)")
     public ResponseEntity<QueryResponse<UserFile>> getFiles(@PathVariable String id,
                                                             @RequestParam(value = "favourite", required = false) Boolean favourite,
-                                                            @RequestBody PagingRequestDto requestDto)
+                                                            @RequestParam(value = "limit") int limit,
+                                                            @RequestParam(value = "attributes", required = false) String[] attributes,
+                                                            @RequestParam(value = "lastKey", required = false) Map<String, String> lastKey)
     {
-        return ResponseEntity.ok(fileService.queryFiles(id, requestDto.limit(),
-                favourite, RequestMapperUtils.mapPagingKey(requestDto.lastKey()), requestDto.attributes()));
+        return ResponseEntity.ok(fileService.queryFiles(id, limit,
+                favourite, RequestMapperUtils.mapPagingKey(lastKey), attributes));
     }
 
 

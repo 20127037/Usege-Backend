@@ -82,6 +82,7 @@ public class FileServiceImpl implements FileService {
             // Increase imgCount
             u.setImgCount(u.getImgCount() + 1);
         });
+        log.info("IMG_COUNT -----> {}", updated.getImgCount());
         log.info("User {} ({}) uploaded an image {} ({} - {} kb) (used {}/{})",
                 updated.getUserId(),
                 updated.getEmail(),
