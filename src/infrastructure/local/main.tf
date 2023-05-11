@@ -215,8 +215,3 @@ resource "aws_dynamodb_table" "paymentHistoriesTable" {
     enabled = false
   }
 }
-
-resource "aws_s3_bucket" "fileStorage" {
-  bucket              = "usege"
-  object_lock_enabled = false
-}

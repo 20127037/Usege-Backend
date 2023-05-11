@@ -23,7 +23,7 @@ public class S3Repository implements FileRepository {
     private final String bucket;
 
     public S3Repository(S3Client s3Client,
-                        @Value("${amazon.aws.s3-bucket}") String bucket) {
+                        @Value("${amazon.aws.s3.bucket}") String bucket) {
         this.s3Client = s3Client;
         this.bucket = bucket;
     }

@@ -36,6 +36,8 @@ public class FileController {
                                                 @RequestPart("info") UserFileUploadDto info,
                                                 @RequestPart("file") MultipartFile file)
     {
+        if (file.isEmpty())
+            return ResponseEntity.unprocessableEntity().build();
         UserFile created = fileService.userUploadFile(id, info, file);
         if (created == null)
             return ResponseEntity.badRequest().build();

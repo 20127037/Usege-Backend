@@ -22,7 +22,8 @@ amazon:
   aws:
     region: ap-southeast-1
     profileName: mobile_group_1_dev
-    s3-bucket: usege
+    s3:
+      bucket: usege-storage
 
 eureka:
   client:

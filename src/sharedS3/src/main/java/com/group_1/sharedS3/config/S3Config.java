@@ -1,12 +1,9 @@
 package com.group_1.sharedS3.config;
 
 import com.group_1.sharedAws.config.AwsClientConfig;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3AsyncClient;
-import software.amazon.awssdk.services.s3.S3AsyncClientBuilder;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 
@@ -19,9 +16,13 @@ import java.net.URI;
  * Description: ...
  */
 @Configuration
-@AllArgsConstructor
 public class S3Config {
+
     private final AwsClientConfig awsClientConfig;
+
+    public S3Config(AwsClientConfig awsClientConfig) {
+        this.awsClientConfig = awsClientConfig;
+    }
 
     @Bean
     public S3Client s3Client() {
@@ -29,9 +30,6 @@ public class S3Config {
                 .region(awsClientConfig.region())
                 .forcePathStyle(true)
                 .credentialsProvider(awsClientConfig.credentialsProvider());
-        URI overrideUri = awsClientConfig.overrideUri();
-        if (overrideUri != null)
-            s3AsyncClientBuilder.endpointOverride(overrideUri);
         return s3AsyncClientBuilder.build();
     }
 }

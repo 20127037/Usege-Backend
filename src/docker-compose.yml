@@ -33,7 +33,7 @@ services:
       image: usege/eureka:latest
       container_name: eureka-server
       environment:
-        - SPRING_PROFILES_ACTIVE=docker
+        - SPRING_PROFILES_ACTIVE={SPRING_PROFILES_ACTIVE}
       ports:
         - "8761:8761"
       depends_on:
@@ -46,7 +46,7 @@ services:
       ports:
         - "8090:8090"
       environment:
-        - SPRING_PROFILES_ACTIVE=docker
+        - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       depends_on:
         - eureka-server
         - zipkin
@@ -64,7 +64,7 @@ services:
         - eureka-server
         - localstack
       environment:
-        - SPRING_PROFILES_ACTIVE=docker
+        - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       volumes:
         - type: bind
           source: ${USERPROFILE}\.aws
@@ -81,7 +81,7 @@ services:
         - eureka-server
         - localstack
       environment:
-        - SPRING_PROFILES_ACTIVE=docker
+        - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       volumes:
         - type: bind
           source: ${USERPROFILE}\.aws
@@ -99,7 +99,7 @@ services:
         - eureka-server
         - localstack
       environment:
-        - SPRING_PROFILES_ACTIVE=docker
+        - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       volumes:
         - type: bind
           source: ${USERPROFILE}\.aws
@@ -117,7 +117,7 @@ services:
         - eureka-server
         - localstack
       environment:
-        - SPRING_PROFILES_ACTIVE=docker
+        - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       volumes:
         - type: bind
           source: ${USERPROFILE}\.aws
@@ -135,7 +135,7 @@ services:
         - eureka-server
         - localstack
       environment:
-        - SPRING_PROFILES_ACTIVE=docker
+        - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       volumes:
         - type: bind
           source: ${USERPROFILE}\.aws
@@ -154,7 +154,7 @@ services:
         - eureka-server
         - localstack
       environment:
-        - SPRING_PROFILES_ACTIVE=docker
+        - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       volumes:
         - type: bind
           source: ${USERPROFILE}\.aws
@@ -172,7 +172,7 @@ services:
         - eureka-server
         - localstack
       environment:
-        - SPRING_PROFILES_ACTIVE=docker
+        - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
       volumes:
         - type: bind
           source: ${USERPROFILE}\.aws
@@ -184,3 +184,6 @@ networks:
   spring:
     driver: bridge
   localstack:
+
+#Production run: SPRING_PROFILES_ACTIVE=docker docker-compose up -d
+#Local run: SPRING_PROFILES_ACTIVE=docker-dev docker-compose up -d

@@ -1,9 +1,6 @@
 spring:
   zipkin:
     base-url: http://zipkin:9411
-amazon:
-  aws:
-    uri: http://localstack:4566
 eureka:
   client:
     service-url:
