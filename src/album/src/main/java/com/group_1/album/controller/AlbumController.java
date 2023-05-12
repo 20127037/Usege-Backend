@@ -39,6 +39,14 @@ public class AlbumController {
         return ResponseEntity.ok().body(albumService.deleteAlbum(id, name));
     }
 
+    @PutMapping("{id}/{name}")
+    @Operation(summary = "Update an album")
+    public ResponseEntity<UserAlbum> updateAlbum(@PathVariable String id, @PathVariable String name, @RequestBody UserAlbum update)
+    {
+        return ResponseEntity.ok().body(albumService.updateAlbum(id, name, update));
+    }
+
+
     @PostMapping("{id}/{name}/images")
     @Operation(summary = "Add a list of user images to an album")
     public ResponseEntity<List<UserFileInAlbum>> addToAlbum(HttpServletRequest request,

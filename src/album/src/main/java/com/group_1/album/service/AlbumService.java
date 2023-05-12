@@ -2,6 +2,7 @@ package com.group_1.album.service;
 
 import com.group_1.sharedDynamoDB.model.UserAlbum;
 import com.group_1.sharedDynamoDB.model.UserFileInAlbum;
+import org.apache.catalina.User;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
 public interface AlbumService {
     UserAlbum createAlbum(String userId, String albumName);
     UserAlbum deleteAlbum(String userId, String albumName);
+    UserAlbum updateAlbum(String userId, String albumName, UserAlbum update);
     List<UserFileInAlbum> addImagesToAlbum(String userId, String albumName, String... fileNames);
     List<UserFileInAlbum> deleteImagesFromAlbum(String userId, String albumName, String... fileNames);
     List<UserFileInAlbum> moveImages(String userId, String fromAlbum, String toAlbum, String... fileNames);

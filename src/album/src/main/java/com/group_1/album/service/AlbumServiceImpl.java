@@ -62,6 +62,16 @@ public class AlbumServiceImpl implements AlbumService {
         return userAlbumRepository.deleteRecordByKey(albumKey);
     }
 
+    @Override
+    public UserAlbum updateAlbum(String userId, String albumName, UserAlbum update) {
+
+        return userAlbumRepository.updateRecord(DynamoDbRepository.getKey(userId, albumName), u -> {
+            String updateName = update.getName();
+            if (updateName != null && !updateName.isBlank())
+                u.setName(updateName);
+        });
+    }
+
 
     @Override
     public List<UserFileInAlbum> addImagesToAlbum(String userId, String albumName, String... fileNames) {
