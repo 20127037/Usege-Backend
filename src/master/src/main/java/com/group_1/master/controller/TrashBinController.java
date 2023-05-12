@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /**
  * com.group_1.master.controller
  * Created by NhatLinh - 19127652
@@ -27,9 +29,10 @@ public class TrashBinController {
     @GetMapping("{id}")
     @Operation(summary = "Get user files from the bin (paging)")
     public ResponseEntity<QueryResponse<UserFile>> getTrashFiles(@PathVariable String id,
-                                                              @RequestBody PagingRequestDto requestDto)
+                                                                 @RequestParam(value = "limit") int limit,
+                                                                 @RequestParam(value = "lastKey", required = false) Map<String, String> lastKey)
     {
-        return ResponseEntity.ok().body(trashBinService.queryImages(id, requestDto.limit(), RequestMapperUtils.mapPagingKey(requestDto.lastKey())));
+        return ResponseEntity.ok().body(trashBinService.queryImages(id, limit, RequestMapperUtils.mapPagingKey(lastKey)));
     }
     @GetMapping("{id}/{fileName}")
     @Operation(summary = "Get an user file from the bin by its name")

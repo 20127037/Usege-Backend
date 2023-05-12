@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 /**
  * com.group_1.master.controller
@@ -34,16 +35,18 @@ public class AlbumController {
     @GetMapping("{id}/{name}/images")
     @Operation(summary = "Get user files from an album (paging)")
     public ResponseEntity<QueryFilesInAlbumResponse> getFilesFromAlbum(@PathVariable String id,
-                                                              @PathVariable String name,
-                                                              @RequestBody PagingRequestDto requestDto)
+                                                                       @PathVariable String name,
+                                                                       @RequestParam(value = "limit") int limit,
+                                                                       @RequestParam(value = "lastKey", required = false) Map<String, String> lastKey)
     {
-        return ResponseEntity.ok().body(albumService.queryImages(id, name, requestDto.limit(), RequestMapperUtils.mapPagingKey(requestDto.lastKey())));
+        return ResponseEntity.ok().body(albumService.queryImages(id, name, limit, RequestMapperUtils.mapPagingKey(lastKey)));
     }
     @GetMapping("{id}")
     @Operation(summary = "Get user albums (paging)")
     public ResponseEntity<QueryResponse<UserAlbum>> getAlbums(@PathVariable String id,
-                                                   @RequestBody PagingRequestDto requestDto)
+                                                              @RequestParam(value = "limit") int limit,
+                                                              @RequestParam(value = "lastKey", required = false) Map<String, String> lastKey)
     {
-        return ResponseEntity.ok().body(albumService.queryAlbums(id, requestDto.limit(), RequestMapperUtils.mapPagingKey(requestDto.lastKey())));
+        return ResponseEntity.ok().body(albumService.queryAlbums(id, limit, RequestMapperUtils.mapPagingKey(lastKey)));
     }
 }
