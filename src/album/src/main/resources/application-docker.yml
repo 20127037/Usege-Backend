@@ -1,6 +1,9 @@
 spring:
   zipkin:
     base-url: http://zipkin:9411
+  rabbitmq:
+    host: http://rabbitmq
+    port: 5672
 eureka:
   client:
     service-url:
