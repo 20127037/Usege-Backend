@@ -28,8 +28,11 @@ public class AlbumController {
 
     @PostMapping("{id}/{name}")
     @Operation(summary = "Create a new album")
-    public ResponseEntity<UserAlbum> createAlbum(HttpServletRequest request, @PathVariable String id, @PathVariable String name) {
-        return ResponseEntity.created(URI.create(request.getRequestURI())).body(albumService.createAlbum(id, name));
+    public ResponseEntity<UserAlbum> createAlbum(HttpServletRequest request,
+                                                 @PathVariable String id,
+                                                 @PathVariable String name,
+                                                 @RequestBody(required = false) String password) {
+        return ResponseEntity.created(URI.create(request.getRequestURI())).body(albumService.createAlbum(id, name, password));
     }
 
     @DeleteMapping("{id}/{name}")

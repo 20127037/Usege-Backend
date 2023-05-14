@@ -20,6 +20,7 @@ public class UserAlbum {
     private String name;
     private String createdDate;
     private Long imgCount;
+    private String password;
 
     @DynamoDbPartitionKey
     public String getUserId() {

@@ -4,6 +4,7 @@ import com.group_1.sharedDynamoDB.exception.NoSuchElementFoundException;
 import com.group_1.sharedDynamoDB.model.*;
 import com.group_1.sharedDynamoDB.repository.*;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.enhanced.dynamodb.Expression;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
@@ -21,24 +22,28 @@ import java.util.List;
  */
 @Service
 @AllArgsConstructor
+@Slf4j
 public class AlbumServiceImpl implements AlbumService {
 
     private final UserAlbumRepository userAlbumRepository;
     private final UserFileRepository userFileRepository;
     private final UserFilesInAlbumRepository userFilesInAlbumRepository;
     private final UserRepository userRepository;
+
     @Override
-    public UserAlbum createAlbum(String userId, String albumName) {
+    public UserAlbum createAlbum(String userId, String albumName, String password) {
         UserAlbum album = userAlbumRepository.getRecordByKey(DynamoDbRepository.getKey(userId, albumName));
         if (album != null)
             return album;
         userRepository.updateRecord(DynamoDbRepository.getKey(userId), s -> s.setAlbumCount(s.getAlbumCount() + 1));
-        return userAlbumRepository.saveRecord(UserAlbum.builder()
+        UserAlbum.UserAlbumBuilder builder = UserAlbum.builder()
                 .userId(userId)
                 .name(albumName)
                 .createdDate(LocalDateTime.now().toString())
-                .imgCount(0L)
-                .build());
+                .imgCount(0L);
+        if (password != null)
+            builder.password(password);
+        return userAlbumRepository.saveRecord(builder.build());
     }
 
     @Override
@@ -52,7 +57,7 @@ public class AlbumServiceImpl implements AlbumService {
                         DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, albumName)),
                         null,
                         UserFileInAlbum.Indexes.ALBUM_NAME,
-                        (int)album.getImgCount().longValue(),
+                        (int) album.getImgCount().longValue(),
                         null,
                         false,
                         UserFileInAlbum.Fields.updated);
@@ -70,14 +75,13 @@ public class AlbumServiceImpl implements AlbumService {
             throw new NoSuchElementFoundException("albums", albumName);
         String updateName = update.getName();
         if (updateName != null && !updateName.isBlank()) {
-            createAlbum(userId, updateName);
-            if (userAlbum.getImgCount() != 0)
-            {
+            createAlbum(userId, updateName, null);
+            if (userAlbum.getImgCount() != 0) {
                 QueryResponse<UserFileInAlbum> albumQueryResponse = userFilesInAlbumRepository
                         .query(DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, albumName)),
                                 null,
                                 UserFileInAlbum.Indexes.ALBUM_NAME,
-                                (int)userAlbum.getImgCount().longValue(),
+                                (int) userAlbum.getImgCount().longValue(),
                                 null,
                                 false,
                                 UserFileInAlbum.Fields.updated);
@@ -96,7 +100,7 @@ public class AlbumServiceImpl implements AlbumService {
         UserAlbum album = userAlbumRepository.getRecordByKey(albumKey, true);
         //If the album does not exist -> try to create a new one
         if (album == null)
-            createAlbum(userId, albumName);
+            createAlbum(userId, albumName, null);
 
         List<UserFileInAlbum> resultSet = new ArrayList<>();
         if (fileNames == null || fileNames.length == 0)
@@ -107,8 +111,7 @@ public class AlbumServiceImpl implements AlbumService {
                 .putExpressionValue(":name", AttributeValue.fromS(albumName))
                 .build();
         LocalDateTime now = LocalDateTime.now();
-        for (String fileName : fileNames)
-        {
+        for (String fileName : fileNames) {
             UserFile userFile = userFileRepository.getRecordByKey(DynamoDbRepository.getKey(userId, fileName));
             if (userFile == null)
                 continue;
@@ -120,11 +123,12 @@ public class AlbumServiceImpl implements AlbumService {
             //If the image is already inside the album -> ignore it
             if (userFileInAlbum != null)
                 continue;
+            log.info("Add image {} to album {}", fileName, album);
             UserFileInAlbum created = userFilesInAlbumRepository.saveRecord(UserFileInAlbum.builder()
-                            .userId(userId)
-                            .albumName(albumName)
-                            .fileName(fileName)
-                            .updated(now.toString())
+                    .userId(userId)
+                    .albumName(albumName)
+                    .fileName(fileName)
+                    .updated(now.toString())
                     .build());
             resultSet.add(created);
             now = now.plusNanos(1);
@@ -145,8 +149,7 @@ public class AlbumServiceImpl implements AlbumService {
                 .putExpressionName("#a", UserFileInAlbum.Fields.albumName)
                 .putExpressionValue(":name", AttributeValue.fromS(albumName))
                 .build();
-        for (String fileName : fileNames)
-        {
+        for (String fileName : fileNames) {
             UserFileInAlbum userFileInAlbum = userFilesInAlbumRepository.queryOne(
                     DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, fileName)),
                     userFilesInAlbumWithAlbumNameEqual,
@@ -155,6 +158,7 @@ public class AlbumServiceImpl implements AlbumService {
             //Image not on the album
             if (userFileInAlbum == null)
                 continue;
+            log.info("Delete image {} from album {}", fileName, albumName);
             UserFileInAlbum deleted = userFilesInAlbumRepository.deleteRecordByKey(
                     DynamoDbRepository.getKey(userId, userFileInAlbum.getUpdated()));
             resultSet.add(deleted);

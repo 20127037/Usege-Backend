@@ -13,7 +13,7 @@ import java.util.List;
  * Description: ...
  */
 public interface AlbumService {
-    UserAlbum createAlbum(String userId, String albumName);
+    UserAlbum createAlbum(String userId, String albumName, String password);
     UserAlbum deleteAlbum(String userId, String albumName);
     UserAlbum updateAlbum(String userId, String albumName, UserAlbum update);
     List<UserFileInAlbum> addImagesToAlbum(String userId, String albumName, String... fileNames);

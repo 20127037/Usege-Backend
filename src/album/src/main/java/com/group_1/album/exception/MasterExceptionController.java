@@ -14,4 +14,11 @@ public class MasterExceptionController {
             NoSuchElementFoundException exception
     ) {
     }
+
+    @ExceptionHandler
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED, reason = "ALBUM_PASSWORD_NOT_MATCH")
+    public void handlePasswordAlbumException(AlbumPasswordNotMatchException exception
+    ) {
+    }
 }
+
