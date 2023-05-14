@@ -83,7 +83,7 @@ public class TrashBinServiceImpl implements TrashBinService {
         {
             for (Map.Entry<String, Set<String>> albumAndImages : mapAlbumsToImages.entrySet())
                 messageProducer.publish(new ImagesInAlbumRequest(userId, albumAndImages.getKey(), albumAndImages.getValue().toArray(String[]::new)),
-                        rabbitMQConfig.getInternalExchange(), rabbitMQConfig.getInternalAlbumAddKey());
+                        rabbitMQConfig.getInternalExchange(), rabbitMQConfig.getInternalAlbumDelKey());
         }
         userRepository.updateRecord(DynamoDbRepository.getKey(userId), i -> {
             i.setImgCount(i.getImgCount() - resultSet.size());
@@ -171,7 +171,7 @@ public class TrashBinServiceImpl implements TrashBinService {
         }
         for (Map.Entry<String, Set<String>> albumAndImages : mapAlbumsToImages.entrySet())
             messageProducer.publish(new ImagesInAlbumRequest(userId, albumAndImages.getKey(), albumAndImages.getValue().toArray(String[]::new)),
-                    rabbitMQConfig.getInternalExchange(), rabbitMQConfig.getInternalAlbumDelKey());
+                    rabbitMQConfig.getInternalExchange(), rabbitMQConfig.getInternalAlbumAddKey());
         userRepository.updateRecord(DynamoDbRepository.getKey(userId), i -> {
             i.setImgCount(i.getImgCount() + resultSet.size());
             i.setDeletedImgCount(i.getDeletedImgCount() - resultSet.size());

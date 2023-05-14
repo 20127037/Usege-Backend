@@ -4,13 +4,11 @@ import lombok.Data;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 /**
  * com.group_1.album.config
@@ -50,12 +48,27 @@ public class RabbitMQConfig {
         return factory;
     }
     @Bean
+    public AmqpAdmin pimAmqpAdmin(ConnectionFactory connectionFactory) {
+        return new RabbitAdmin(connectionFactory);
+    }
+    @Bean
+    Queue addQueue()
+    {
+        return QueueBuilder.durable(addAlbumQueue).autoDelete().build();
+    }
+    @Bean
+    Queue delQueue()
+    {
+        return QueueBuilder.durable(delAlbumQueue).autoDelete().build();
+    }
+
+    @Bean
     Binding binding1(TopicExchange exchange) {
-        return BindingBuilder.bind(new Queue(addAlbumQueue)).to(exchange).with(internalAlbumAddKey);
+        return BindingBuilder.bind(addQueue()).to(exchange).with(internalAlbumAddKey);
     }
 
     @Bean
     Binding binding2(TopicExchange exchange) {
-        return BindingBuilder.bind(new Queue(delAlbumQueue)).to(exchange).with(internalAlbumDelKey);
+        return BindingBuilder.bind(delQueue()).to(exchange).with(internalAlbumDelKey);
     }
 }

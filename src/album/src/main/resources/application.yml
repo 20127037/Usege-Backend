@@ -8,8 +8,9 @@ spring:
   zipkin:
     base-url: http://localhost:9411
   rabbitmq:
+    template:
+      exchange: rabbitmq.exchanges.internal
     host: localhost
-    port: 5672
   security:
     oauth2:
       resourceserver:

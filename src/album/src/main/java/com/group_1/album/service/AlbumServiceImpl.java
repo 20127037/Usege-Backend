@@ -65,11 +65,28 @@ public class AlbumServiceImpl implements AlbumService {
     @Override
     public UserAlbum updateAlbum(String userId, String albumName, UserAlbum update) {
 
-        return userAlbumRepository.updateRecord(DynamoDbRepository.getKey(userId, albumName), u -> {
-            String updateName = update.getName();
-            if (updateName != null && !updateName.isBlank())
-                u.setName(updateName);
-        });
+        UserAlbum userAlbum = userAlbumRepository.getRecordByKey(DynamoDbRepository.getKey(userId, albumName));
+        if (userAlbum == null)
+            throw new NoSuchElementFoundException("albums", albumName);
+        String updateName = update.getName();
+        if (updateName != null && !updateName.isBlank()) {
+            createAlbum(userId, updateName);
+            if (userAlbum.getImgCount() != 0)
+            {
+                QueryResponse<UserFileInAlbum> albumQueryResponse = userFilesInAlbumRepository
+                        .query(DynamoDbRepository.getQueryConditional(DynamoDbRepository.getKey(userId, albumName)),
+                                null,
+                                UserFileInAlbum.Indexes.ALBUM_NAME,
+                                (int)userAlbum.getImgCount().longValue(),
+                                null,
+                                false,
+                                UserFileInAlbum.Fields.updated);
+                addImagesToAlbum(userId, updateName, albumQueryResponse.getResponse().stream().map(UserFileInAlbum::getFileName).toArray(String[]::new));
+                deleteAlbum(userId, albumName);
+            }
+            return userAlbumRepository.getRecordByKey(DynamoDbRepository.getKey(userId, updateName));
+        }
+        return null;
     }
 
 

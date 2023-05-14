@@ -14,8 +14,6 @@ services:
       volumes:
         #- /var/run/docker-dev.sock:/var/run/docker-dev.sock
         - localstack_data:/tmp/localstack/data
-      networks:
-        localstack:
     rabbitmq:
       image: rabbitmq:3.11.15-management-alpine
       container_name: rabbitmq
@@ -27,8 +25,6 @@ services:
       container_name: zipkin
       ports:
         - "9411:9411"
-      networks:
-        - spring
     eureka-server:
       image: usege/eureka:latest
       container_name: eureka-server
@@ -38,8 +34,6 @@ services:
         - "8761:8761"
       depends_on:
         - zipkin
-      networks:
-        - spring
     apigw:
       image: usege/apigw:latest
       container_name: apigw
@@ -50,16 +44,11 @@ services:
       depends_on:
         - eureka-server
         - zipkin
-      networks:
-        - spring
     master:
       image: usege/master:latest
       container_name: master
       ports:
         - "8080:8080"
-      networks:
-        - spring
-        - localstack
       depends_on:
         - eureka-server
         - localstack
@@ -74,9 +63,6 @@ services:
       container_name: account
       ports:
         - "8081:8081"
-      networks:
-        - spring
-        - localstack
       depends_on:
         - eureka-server
         - localstack
@@ -92,9 +78,6 @@ services:
       container_name: auth
       ports:
         - "8082:8082"
-      networks:
-        - spring
-        - localstack
       depends_on:
         - eureka-server
         - localstack
@@ -110,12 +93,8 @@ services:
       container_name: file
       ports:
         - "8083:8083"
-      networks:
-        - spring
-        - localstack
       depends_on:
         - eureka-server
-        - localstack
       environment:
         - SPRING_PROFILES_ACTIVE=docker-dev
       volumes:
@@ -128,12 +107,8 @@ services:
       container_name: payment
       ports:
         - "8084:8084"
-      networks:
-        - spring
-        - localstack
       depends_on:
         - eureka-server
-        - localstack
       environment:
         - SPRING_PROFILES_ACTIVE=docker-dev
       volumes:
@@ -146,13 +121,9 @@ services:
       container_name: album
       ports:
         - "8085:8085"
-      networks:
-        - spring
-        - localstack
       depends_on:
         - rabbitmq
         - eureka-server
-        - localstack
       environment:
         - SPRING_PROFILES_ACTIVE=docker-dev
       volumes:
@@ -164,13 +135,10 @@ services:
       container_name: trash
       ports:
         - "8086:8086"
-      networks:
-        - spring
-        - localstack
       depends_on:
         - rabbitmq
         - eureka-server
-        - localstack
+        - rabbit_mq
       environment:
         - SPRING_PROFILES_ACTIVE=docker-dev
       volumes:
@@ -179,8 +147,3 @@ services:
           target: /root/.aws
 volumes:
   localstack_data:
-
-networks:
-  spring:
-    driver: bridge
-  localstack:

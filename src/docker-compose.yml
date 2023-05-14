@@ -12,8 +12,6 @@ services:
       container_name: zipkin
       ports:
         - "9411:9411"
-      networks:
-        - spring
     eureka-server:
       image: usege/eureka:latest
       container_name: eureka-server
@@ -23,8 +21,6 @@ services:
         - "8761:8761"
       depends_on:
         - zipkin
-      networks:
-        - spring
     apigw:
       image: usege/apigw:latest
       container_name: apigw
@@ -35,15 +31,11 @@ services:
       depends_on:
         - eureka-server
         - zipkin
-      networks:
-        - spring
     master:
       image: usege/master:latest
       container_name: master
       ports:
         - "8080:8080"
-      networks:
-        - spring
       depends_on:
         - eureka-server
       environment:
@@ -57,8 +49,6 @@ services:
       container_name: account
       ports:
         - "8081:8081"
-      networks:
-        - spring
       depends_on:
         - eureka-server
       environment:
@@ -73,8 +63,6 @@ services:
       container_name: auth
       ports:
         - "8082:8082"
-      networks:
-        - spring
       depends_on:
         - eureka-server
       environment:
@@ -89,8 +77,6 @@ services:
       container_name: file
       ports:
         - "8083:8083"
-      networks:
-        - spring
       depends_on:
         - eureka-server
       environment:
@@ -105,8 +91,6 @@ services:
       container_name: payment
       ports:
         - "8084:8084"
-      networks:
-        - spring
       depends_on:
         - eureka-server
       environment:
@@ -121,8 +105,6 @@ services:
       container_name: album
       ports:
         - "8085:8085"
-      networks:
-        - spring
       depends_on:
         - rabbitmq
         - eureka-server
@@ -137,8 +119,6 @@ services:
       container_name: trash
       ports:
         - "8086:8086"
-      networks:
-        - spring
       depends_on:
         - rabbitmq
         - eureka-server
@@ -148,7 +128,3 @@ services:
         - type: bind
           source: ${USERPROFILE}\.aws
           target: /root/.aws
-
-networks:
-  spring:
-    driver: bridge

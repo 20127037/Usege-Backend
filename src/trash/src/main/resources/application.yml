@@ -8,8 +8,7 @@ spring:
   zipkin:
     base-url: http://localhost:9411
   rabbitmq:
-    port: 5672
-    host: "localhost"
+    host: localhost
     template:
       exchange: internal.exchange
   security:
@@ -26,7 +25,7 @@ amazon:
 
 rabbitmq:
   exchanges:
-    internal:
+    internal: internal.exchange
   queue:
     album-add:
       name: album.queue.add
